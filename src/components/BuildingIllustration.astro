@@ -1,0 +1,257 @@
+---
+// Ilustrace digitálního dvojčete: patra budovy v izometrii se rozestoupí nad sebe
+// a ožijí daty (heatmapa, senzory, úniková trasa, parkoviště). Čisté SVG + CSS.
+
+const COS = Math.cos(Math.PI / 6);
+const SIN = 0.5;
+const W = 170; // délka budovy
+const D = 120; // hloubka budovy
+const T = 7; // tloušťka desky
+const GAP = 46; // rozestup pater po animaci
+const GAP_START = 9; // rozestup na začátku (patra těsně na sobě)
+const FLOORS = 5;
+
+type Pt = [number, number];
+const A: Pt = [0, 0];
+const B: Pt = [W * COS, W * SIN];
+const L: Pt = [-D * COS, D * SIN];
+const C: Pt = [B[0] + L[0], B[1] + L[1]];
+
+// Bod na horní ploše desky: u jde podél délky, v podél hloubky (0–1)
+const P = (u: number, v: number): Pt => [u * B[0] + v * L[0], u * B[1] + v * L[1]];
+const down = ([x, y]: Pt): Pt => [x, y + T];
+const pts = (list: Pt[]) => list.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+const line = (u1: number, v1: number, u2: number, v2: number) => {
+  const [x1, y1] = P(u1, v1);
+  const [x2, y2] = P(u2, v2);
+  return { x1: x1.toFixed(1), y1: y1.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1) };
+};
+
+const top = pts([A, B, C, L]);
+const sideRight = pts([C, B, down(B), down(C)]);
+const sideLeft = pts([L, C, down(C), down(L)]);
+
+// Příčky místností pro každé patro (shora dolů). U nižších pater je vidět jen přední
+// pás (u > 0,73 nebo v > 0,62), zbytek zakrývá patro nad nimi – detaily dáváme tam.
+const walls = [
+  [line(0.45, 0, 0.45, 1), line(0, 0.55, 0.45, 0.55), line(0.45, 0.4, 1, 0.4)],
+  [line(0.35, 0, 0.35, 1), line(0.35, 0.55, 1, 0.55), line(0.7, 0.55, 0.7, 1)],
+  [line(0.5, 0, 0.5, 0.66), line(0, 0.66, 1, 0.66), line(0.78, 0, 0.78, 0.66)],
+  [line(0.3, 0, 0.3, 1), line(0.65, 0, 0.65, 1), line(0.65, 0.7, 1, 0.7)],
+  [
+    ...Array.from({ length: 9 }, (_, i) => line(0.1 + i * 0.1, 0, 0.1 + i * 0.1, 0.3)),
+    ...Array.from({ length: 9 }, (_, i) => line(0.1 + i * 0.1, 0.7, 0.1 + i * 0.1, 1)),
+  ],
+];
+
+const sensors: { floor: number; at: Pt }[] = [
+  { floor: 0, at: P(0.22, 0.28) },
+  { floor: 0, at: P(0.75, 0.72) },
+  { floor: 2, at: P(0.89, 0.33) },
+  { floor: 3, at: P(0.15, 0.82) },
+  { floor: 3, at: P(0.85, 0.45) },
+];
+
+const heat = [
+  { at: P(0.86, 0.3), rx: 34 },
+  { at: P(0.5, 0.82), rx: 44 },
+];
+
+const route = pts([P(0.12, 0.83), P(0.88, 0.83), P(0.88, 1)]);
+const routeStart = P(0.12, 0.83);
+const routeEnd = P(0.88, 1);
+
+const pad = 14;
+const minX = L[0] - pad;
+const maxX = B[0] + pad;
+const minY = -pad;
+const maxY = C[1] + T + (FLOORS - 1) * GAP + pad;
+const viewBox = [minX, minY, maxX - minX, maxY - minY].map((n) => n.toFixed(1)).join(' ');
+
+const floors = Array.from({ length: FLOORS }, (_, i) => FLOORS - 1 - i); // kreslíme odspodu
+---
+
+<figure class="art">
+  <svg viewBox={viewBox} role="img" aria-label="Ilustrace: patra budovy rozložená nad sebou s daty ze senzorů">
+    <defs>
+      <radialGradient id="bi-heat">
+        <stop offset="0" stop-color="var(--accent)" stop-opacity="0.85"></stop>
+        <stop offset="1" stop-color="var(--accent)" stop-opacity="0"></stop>
+      </radialGradient>
+      <clipPath id="bi-top" clipPathUnits="userSpaceOnUse">
+        <polygon points={top}></polygon>
+      </clipPath>
+    </defs>
+
+    {
+      floors.map((i) => (
+        <g class="slab" style={`--y: ${i * GAP}px; --y0: ${i * GAP_START}px; --n: ${FLOORS - 1 - i}`}>
+          <polygon class="side-r" points={sideRight} />
+          <polygon class="side-l" points={sideLeft} />
+          <polygon class="top" points={top} />
+
+          {i === 1 && (
+            <g class="heat" clip-path="url(#bi-top)">
+              {heat.map((h) => (
+                <ellipse cx={h.at[0].toFixed(1)} cy={h.at[1].toFixed(1)} rx={h.rx} ry={(h.rx * 0.58).toFixed(1)} fill="url(#bi-heat)" />
+              ))}
+            </g>
+          )}
+
+          {walls[i].map((w) => (
+            <line class="wall" {...w} />
+          ))}
+
+          {i === 2 && (
+            <g class="route">
+              <polyline points={route} />
+              <circle cx={routeStart[0].toFixed(1)} cy={routeStart[1].toFixed(1)} r="1.8" />
+              <circle cx={routeEnd[0].toFixed(1)} cy={routeEnd[1].toFixed(1)} r="2.6" />
+            </g>
+          )}
+
+          {sensors
+            .filter((s) => s.floor === i)
+            .map((s, k) => (
+              <g class="sensor" style={`--k: ${i + k}`}>
+                <circle class="sensor-ring" cx={s.at[0].toFixed(1)} cy={s.at[1].toFixed(1)} r="2.6" />
+                <circle class="sensor-dot" cx={s.at[0].toFixed(1)} cy={s.at[1].toFixed(1)} r="2.6" />
+              </g>
+            ))}
+        </g>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  .art {
+    --art-bg: #f3f3f1;
+    --slab-top: #ffffff;
+    --slab-r: #e9e9e6;
+    --slab-l: #dfdfdb;
+    --slab-line: rgb(0 0 0 / 0.13);
+    --route: #16a34a;
+
+    margin: 0;
+    padding: 40px 24px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--art-bg);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .art {
+      --art-bg: #0e0e0e;
+      --slab-top: #1b1b1b;
+      --slab-r: #151515;
+      --slab-l: #111111;
+      --slab-line: rgb(255 255 255 / 0.1);
+      --route: #22c55e;
+    }
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    max-width: 290px;
+    height: auto;
+    margin: 0 auto;
+    overflow: visible;
+  }
+
+  .slab {
+    transform: translateY(var(--y));
+    animation: explode 1.5s var(--ease) backwards;
+    animation-delay: calc(0.25s + var(--n) * 70ms);
+  }
+
+  @keyframes explode {
+    from {
+      transform: translateY(var(--y0));
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+  }
+
+  .top {
+    fill: var(--slab-top);
+    stroke: var(--slab-line);
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+  }
+
+  .side-r {
+    fill: var(--slab-r);
+  }
+
+  .side-l {
+    fill: var(--slab-l);
+  }
+
+  .wall {
+    stroke: var(--slab-line);
+    stroke-width: 0.8;
+    stroke-linecap: round;
+  }
+
+  .heat {
+    animation:
+      fade 1.2s var(--ease) 1.3s backwards,
+      breathe 3.6s ease-in-out 2.5s infinite alternate;
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes breathe {
+    to {
+      opacity: 0.6;
+    }
+  }
+
+  .route polyline {
+    fill: none;
+    stroke: var(--route);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 4 4;
+    animation:
+      fade 0.8s var(--ease) 1.5s backwards,
+      march 1.1s linear infinite;
+  }
+
+  .route circle {
+    fill: var(--route);
+    animation: fade 0.8s var(--ease) 1.5s backwards;
+  }
+
+  @keyframes march {
+    to {
+      stroke-dashoffset: -8;
+    }
+  }
+
+  .sensor-dot {
+    fill: var(--accent);
+    stroke: var(--slab-top);
+    stroke-width: 1;
+    animation: fade 0.6s var(--ease) backwards;
+    animation-delay: calc(1.4s + var(--k) * 0.12s);
+  }
+
+  .sensor-ring {
+    fill: var(--accent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ping 2.6s var(--ease) infinite;
+    animation-delay: calc(1.8s + var(--k) * 0.35s);
+  }
+</style>

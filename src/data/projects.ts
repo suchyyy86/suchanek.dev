@@ -1,6 +1,6 @@
 // Všechny projekty na jednom místě: pracovní, školní i osobní.
 // Popis drž na jeden krátký řádek.
-// featured: true = ukáže se na úvodní stránce.
+// featured: true = kandidát na úvodní stránku (úvod zatím projekty nezobrazuje, je jich málo).
 // draft: true = projekt se nezobrazí (např. dokud nemáš souhlas firmy nebo klienta).
 
 export interface Project {
@@ -15,8 +15,9 @@ export interface Project {
 export const projects: Project[] = [
   {
     title: 'Digitální dvojče budovy',
-    description: '3D aplikace pro vizualizaci dat ze senzorů budovy.',
+    description: 'Interaktivní 3D model budovy nad živými daty ze senzorů.',
     year: '2025',
+    href: '/projekty/digitalni-dvojce',
     featured: true,
   },
   {

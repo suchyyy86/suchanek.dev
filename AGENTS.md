@@ -18,7 +18,8 @@ Při spouštění dev serveru agentem použij `astro dev --background` (správa:
 | Co | Soubor |
 |---|---|
 | Kontakty, jméno, role | `src/data/site.ts` |
-| Projekty (`featured` = úvod, `draft` = skryté) | `src/data/projects.ts` |
+| Projekty (`draft` = skryté; úvod je zatím nezobrazuje) | `src/data/projects.ts` |
+| Detail projektu | `src/pages/projekty/<slug>.astro` (vzor: `digitalni-dvojce.astro`) |
 | Životopis (CV i Zkušenosti na úvodu) | `src/data/cv.ts` |
 | Mapa cest | `src/data/travels.json` (země jako ISO kód `CZ`, místa jako `lat`/`lon`) |
 | Barvy, typografie, animace | `src/styles/global.css` |
@@ -26,7 +27,9 @@ Při spouštění dev serveru agentem použij `astro dev --background` (správa:
 
 ## Konvence
 
-- **Minimalismus.** Jedna akcentová barva (`--accent`), hodně vzduchu, žádné dekorace navíc.
+- **Minimalismus a málo textu.** Jedna akcentová barva (`--accent`), hodně vzduchu, žádné dekorace
+  navíc. V seznamech jednořádkové popisy; delší text patří jen na detail projektu.
+- **Pracovní projekty popisuj obecně**: bez jmen klientů, interních adres a detailů zabezpečení.
 - **Barvy jen přes tokeny** v `:root` (světlý i tmavý režim podle systému).
 - **Animace:**
   - `.enter` + `style="--i: N"` – nástup při načtení, N určuje pořadí.

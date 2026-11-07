@@ -1,0 +1,161 @@
+---
+import Base from '../../layouts/Base.astro';
+import BuildingIllustration from '../../components/BuildingIllustration.astro';
+import { cz } from '../../utils/cz';
+
+const lead =
+  'Interaktivní 3D model budovy, do kterého se promítají živá data ze senzorů a zařízení. Správci budovy tak na jednom místě vidí, co se kde děje.';
+
+const facts = [
+  { label: 'Období', value: '07/2025 – dnes' },
+  { label: 'Kde', value: 'Railsformers' },
+  { label: 'Role', value: 'Frontend a 3D vizualizace' },
+];
+
+const features = [
+  'Celá budova ve 3D po patrech. Geometrie se skládá z dat, nic se nemodeluje ručně.',
+  'Teplota, vlhkost a CO₂ jako heatmapa přímo v místnostech.',
+  'Kamery, zámky, ovládání světel, měřiče, obsazenost stolů i parkování.',
+  'Animované únikové trasy a přehled aktivních incidentů.',
+  'Editor stěn, dveří, místností a nábytku přímo ve 3D, s historií změn.',
+  '2D půdorys a procházení budovou z pohledu člověka.',
+  'Webová administrace: správa zařízení, dashboardy, analýza spotřeby a alarmy.',
+];
+
+const stack = ['React 19', 'Babylon.js', 'Vite', 'Next.js', 'Tailwind CSS', 'Vitest', 'Sentry'];
+---
+
+<Base title="Digitální dvojče budovy" description={lead}>
+  <header class="page-head">
+    <a href="/projekty" class="more back enter">
+      <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.5 6h-7M5.5 3l-3 3 3 3"></path></svg>
+      Projekty
+    </a>
+    <h1 class="page-title enter" style="--i: 1">Digitální dvojče budovy</h1>
+    <p class="lead enter" style="--i: 2">{cz(lead)}</p>
+
+    <dl class="facts enter" style="--i: 3">
+      {
+        facts.map((f) => (
+          <div>
+            <dt>{f.label}</dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </header>
+
+  <div class="visual enter" style="--i: 4">
+    <BuildingIllustration />
+  </div>
+
+  <section class="section scroll-in">
+    <h2 class="section-title">Co umí</h2>
+    <ul class="points">
+      {features.map((f) => <li>{cz(f)}</li>)}
+    </ul>
+  </section>
+
+  <section class="section scroll-in">
+    <h2 class="section-title">Pro jakoukoli budovu</h2>
+    <p class="text">
+      Patra, stěny i&nbsp;zařízení se načítají z&nbsp;databáze, ne z&nbsp;kódu, takže stejná aplikace zvládne
+      i&nbsp;jinou budovu. Teď běží v&nbsp;první budově a&nbsp;postupně se z&nbsp;ní stává platforma pro jakoukoli
+      další.
+    </p>
+  </section>
+
+  <section class="section scroll-in">
+    <h2 class="section-title">Moje role</h2>
+    <p class="text">
+      Na vizualizaci dělám od jejího začátku v&nbsp;červenci 2025 jako jeden ze dvou hlavních vývojářů:
+      3D scéna a&nbsp;generování budovy, heatmapy, kamery, únikové trasy i&nbsp;editory. Podílím se
+      i&nbsp;na administraci.
+    </p>
+  </section>
+
+  <section class="section scroll-in">
+    <h2 class="section-title">Technologie</h2>
+    <ul class="chips stack">
+      {stack.map((s) => <li>{s}</li>)}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: 8px;
+  }
+
+  .back {
+    margin-bottom: 28px;
+  }
+
+  .page-title {
+    margin-bottom: 16px;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px 24px;
+    margin: 32px 0 0;
+  }
+
+  .facts dt {
+    font-size: 0.8125rem;
+    color: var(--text-3);
+  }
+
+  .facts dd {
+    margin: 2px 0 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .visual {
+    margin-top: 48px;
+  }
+
+  .section {
+    margin-top: 72px;
+  }
+
+  .points {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-2);
+  }
+
+  .points li {
+    position: relative;
+    padding: 10px 0 10px 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .points li:first-child {
+    border-top: 0;
+  }
+
+  .points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: calc(10px + 0.8em);
+    width: 8px;
+    height: 1px;
+    background: var(--text-3);
+  }
+
+  .text {
+    margin-top: 14px;
+    color: var(--text-2);
+    max-width: 60ch;
+  }
+
+  .stack {
+    margin-top: 16px;
+  }
+</style>
