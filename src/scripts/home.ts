@@ -19,7 +19,8 @@ function initializeStory(story: HTMLElement) {
   const lines = scenes.map((scene) => Array.from(scene.querySelectorAll<HTMLElement>('.line-inner')));
   const notes = [story.querySelector('.name-note'), story.querySelector('.work-note')];
   const cue = story.querySelector('.scroll-cue');
-  const meter = story.querySelector('.story-progress > span');
+  const meter = story.querySelector('.cue-track > span');
+  const scrollLabel = story.querySelector('[data-scroll-label]');
   const media = gsap.matchMedia();
 
   media.add('(prefers-reduced-motion: no-preference) and (min-height: 520px)', () => {
@@ -30,6 +31,7 @@ function initializeStory(story: HTMLElement) {
     let pillHeight = 0;
     let dotSize = 0;
     let activeScene = -1;
+    let colors = { accent: '', surface: '', line: '' };
 
     const clamp = gsap.utils.clamp(0, 1);
     const between = (value: number, start: number, end: number) => clamp((value - start) / (end - start));
@@ -50,6 +52,12 @@ function initializeStory(story: HTMLElement) {
         return { x, y };
       }
       points = [center(elements.startAnchor), center(elements.workAnchor), center(elements.pill)];
+      const tokens = getComputedStyle(document.documentElement);
+      colors = {
+        accent: tokens.getPropertyValue('--accent').trim(),
+        surface: tokens.getPropertyValue('--surface').trim(),
+        line: tokens.getPropertyValue('--line').trim(),
+      };
       pillWidth = elements.pill.offsetWidth;
       pillHeight = elements.pill.offsetHeight;
       dotSize = elements.startAnchor.offsetWidth;
@@ -75,8 +83,7 @@ function initializeStory(story: HTMLElement) {
       setScene(1, ease(workEnter) * (1 - workExit), workEnter, workExit);
       setScene(2, ease(contactEnter), contactEnter, 0);
       gsap.set(elements.pill, { opacity: ease(between(p, 0.88, 0.96)), y: 0 });
-      gsap.set(cue, { autoAlpha: 1 - between(p, 0.04, 0.13) });
-      gsap.set(meter, { scaleX: p });
+      gsap.set(meter, { scaleY: p });
 
       const currentScene = p < 0.28 ? 0 : p < 0.7 ? 1 : 2;
       if (currentScene !== activeScene) {
@@ -85,6 +92,7 @@ function initializeStory(story: HTMLElement) {
           scene.inert = index !== currentScene;
         });
         activeScene = currentScene;
+        if (scrollLabel) scrollLabel.textContent = ['Posuň se dál', 'Pokračuj', 'Kontakt'][currentScene];
       }
       elements.pill.inert = p < 0.94;
 
@@ -107,6 +115,8 @@ function initializeStory(story: HTMLElement) {
         y: y - height / 2,
         width,
         height,
+        backgroundColor: mix(colors.accent, colors.surface, spread),
+        borderColor: mix('rgba(0, 0, 0, 0)', colors.line, spread),
         scaleX: 1 + landing * 0.2,
         scaleY: 1 - landing * 0.16,
         rotation: arc * (segment === 0 ? 12 : -12) * (1 - spread),
@@ -143,9 +153,11 @@ function initializeStory(story: HTMLElement) {
         scene.removeAttribute('aria-hidden');
       });
       elements.pill.inert = false;
+      if (scrollLabel) scrollLabel.textContent = 'Posuň se dál';
     };
   });
 
   document.fonts.ready.then(() => ScrollTrigger.refresh());
   window.addEventListener('pageshow', () => ScrollTrigger.refresh());
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => ScrollTrigger.refresh());
 }
