@@ -30,7 +30,8 @@ Při spouštění dev serveru agentem použij `astro dev --background` (správa:
 - **Minimalismus a málo textu.** Jedna akcentová barva (`--accent`), hodně vzduchu, žádné dekorace
   navíc. V seznamech jednořádkové popisy; delší text patří jen na detail projektu.
 - **Pracovní projekty popisuj obecně**: bez jmen klientů, interních adres a detailů zabezpečení.
-- **Jen tmavý motiv**, nezávisle na nastavení systému. Barvy výhradně přes tokeny v `:root`.
+- **Světlý i tmavý motiv podle systému** (`prefers-color-scheme`), žádný přepínač. Barvy výhradně
+  přes tokeny v `:root`, tmavé hodnoty v media query hned pod nimi.
 - **Animace:**
   - `.enter` + `style="--i: N"` – nástup při načtení, N určuje pořadí.
   - `.scroll-in` – nástup při scrollu (čisté CSS, scroll-driven animations).
