@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectList from '../../components/ProjectList.astro';
+import { publishedProjects } from '../../data/projects';
+---
+
+<Base title="Projekty" description="Projekty Mariusze Suchanka – práce, škola i vlastní experimenty.">
+  <header class="page-head">
+    <h1 class="page-title enter">Projekty</h1>
+    <p class="lead enter" style="--i: 1">
+      Na čem pracuju v&nbsp;práci, co jsem dělal ve škole a&nbsp;co si stavím jen tak. Postupně přibývá.
+    </p>
+  </header>
+
+  <div class="list enter" style="--i: 2">
+    <ProjectList projects={publishedProjects} />
+  </div>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: 24px;
+  }
+
+  .page-title {
+    margin-bottom: 16px;
+  }
+
+  .list {
+    margin-top: 56px;
+  }
+</style>

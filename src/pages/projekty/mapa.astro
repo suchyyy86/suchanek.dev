@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorldMap from '../../components/WorldMap.astro';
+import travels from '../../data/travels.json';
+import { nameForCode } from '../../lib/world';
+
+// 193 členů OSN + Vatikán a Palestina
+const TOTAL = 195;
+const count = travels.countries.length;
+const share = ((count / TOTAL) * 100).toLocaleString('cs-CZ', { maximumFractionDigits: 1 });
+const names = travels.countries.map((c) => nameForCode(c.code)).sort((a, b) => a.localeCompare(b, 'cs'));
+---
+
+<Base title="Mapa cest" description="Mapa světa s místy, kde už jsem byl." wide>
+  <header class="page-head">
+    <a href="/projekty" class="more back enter">
+      <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.5 6h-7M5.5 3l-3 3 3 3"></path></svg>
+      Projekty
+    </a>
+    <h1 class="page-title enter" style="--i: 1">Kde všude jsem byl</h1>
+    <p class="lead enter" style="--i: 2">
+      Obarvené země jsem navštívil, tečky jsou konkrétní místa. Najeď na ně myší, nebo přepni na
+      Evropu.
+    </p>
+  </header>
+
+  <dl class="stats enter" style="--i: 3">
+    <div>
+      <dt>Zemí</dt>
+      <dd>{count}</dd>
+    </div>
+    <div>
+      <dt>Ze světa</dt>
+      <dd>{share}&nbsp;%</dd>
+    </div>
+    <div>
+      <dt>Míst na mapě</dt>
+      <dd>{travels.places.length}</dd>
+    </div>
+  </dl>
+
+  <div class="enter" style="--i: 4">
+    <WorldMap />
+  </div>
+
+  <section class="section visited scroll-in">
+    <h2 class="section-title">Navštívené země</h2>
+    <ul class="chips">
+      {names.map((n) => <li>{n}</li>)}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    max-width: 640px;
+    padding-top: 8px;
+  }
+
+  .back {
+    margin-bottom: 28px;
+  }
+
+  .page-title {
+    margin-bottom: 16px;
+  }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 48px;
+    margin: 48px 0 32px;
+  }
+
+  .stats dt {
+    font-size: 0.8125rem;
+    color: var(--text-3);
+  }
+
+  .stats dd {
+    margin: 2px 0 0;
+    font-size: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .visited {
+    margin-top: 64px;
+  }
+
+  .visited .chips {
+    margin-top: 14px;
+  }
+</style>

@@ -1,102 +1,400 @@
 ---
-// Mapa se vykreslí už při buildu do čistého SVG – v prohlížeči neběží žádná knihovna.
+// Mapa se vykreslí při buildu do čistého SVG. V prohlížeči běží jen pár řádků
+// na přepínání výřezu a tooltip – žádná mapová knihovna.
 import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo';
-import { feature } from 'topojson-client';
-import type { Topology, GeometryCollection } from 'topojson-specification';
-import type { Feature, Geometry } from 'geojson';
-import world from 'world-atlas/countries-110m.json';
+import { countryFeatures, countryInfo } from '../lib/world';
 import travels from '../data/travels.json';
 
 const W = 960;
 const H = 500;
 
-const topo = world as unknown as Topology<{ countries: GeometryCollection<{ name: string }> }>;
-const countries = (feature(topo, topo.objects.countries) as unknown as {
-  features: Feature<Geometry, { name: string }>[];
-}).features.filter((f) => f.properties.name !== 'Antarctica');
-
 const projection = geoNaturalEarth1().fitExtent(
   [
-    [6, 6],
-    [W - 6, H - 6],
+    [8, 8],
+    [W - 8, H - 8],
   ],
-  { type: 'FeatureCollection', features: countries },
+  { type: 'FeatureCollection', features: countryFeatures },
 );
 const path = geoPath(projection).digits(1);
 
-const visited = new Map(travels.countries.map((c) => [c.id, c]));
+const visited = new Map(travels.countries.map((c) => [c.code.toUpperCase(), c]));
+let visitedIndex = 0;
+
+const shapes = countryFeatures.map((f) => {
+  const info = countryInfo(f);
+  const v = info.code ? visited.get(info.code) : undefined;
+  return {
+    d: path(f) ?? '',
+    visited: Boolean(v),
+    index: v ? visitedIndex++ : 0,
+    tip: v ? [info.name, v.note || 'navštíveno'].join(' · ') : info.name,
+  };
+});
+
+// Navštívené země kreslíme až nakonec, ať jejich obrys nepřekrývají sousedé.
+shapes.sort((a, b) => Number(a.visited) - Number(b.visited));
+
+// Výřez obdélníku zeměpisných souřadnic, dorovnaný na poměr stran mapy
+function view(lon0: number, lat0: number, lon1: number, lat1: number, pad = 0.04) {
+  const pts: [number, number][] = [];
+  for (let lon = lon0; lon <= lon1; lon += 1) for (let lat = lat0; lat <= lat1; lat += 1) pts.push([lon, lat]);
+  const [[x0, y0], [x1, y1]] = path.bounds({ type: 'MultiPoint', coordinates: pts });
+  let w = x1 - x0;
+  let h = y1 - y0;
+  if (w / h > W / H) h = (w * H) / W;
+  else w = (h * W) / H;
+  w *= 1 + pad;
+  h *= 1 + pad;
+  const cx = (x0 + x1) / 2;
+  const cy = (y0 + y1) / 2;
+  return [cx - w / 2, cy - h / 2, w, h].map((n) => Number(n.toFixed(2)));
+}
+
+const views = {
+  svet: [0, 0, W, H],
+  evropa: view(-12, 35, 38, 70),
+};
+
 const places = travels.places
-  .map((p) => ({ ...p, xy: projection([p.lon, p.lat]) }))
-  .filter((p) => p.xy);
+  .map((p, i) => {
+    const xy = projection([p.lon, p.lat]);
+    return xy ? { ...p, i, x: xy[0].toFixed(1), y: xy[1].toFixed(1) } : null;
+  })
+  .filter((p): p is NonNullable<typeof p> => p !== null);
+
+const label = `Mapa světa. Navštívené země: ${visited.size}, vyznačená místa: ${places.length}.`;
 ---
 
-<figure class="map">
-  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Mapa světa, navštívené země: ${visited.size}`}>
-    <path class="graticule" d={path(geoGraticule10())} />
-    {
-      countries.map((c) => {
-        const v = visited.get(String(c.id));
-        return (
-          <path class:list={['country', { visited: v }]} d={path(c)}>
-            <title>{v ? `${v.name} ✓` : c.properties.name}</title>
-          </path>
-        );
-      })
-    }
-    {
-      places.map((p) => (
-        <g class="pin" transform={`translate(${p.xy![0]},${p.xy![1]})`}>
-          <circle r="6" class="halo" />
-          <circle r="2.6" />
-          <title>{[p.name, p.year, p.note].filter(Boolean).join(' · ')}</title>
+<div class="map" data-map data-views={JSON.stringify(views)} data-view="svet">
+  <div class="map-bar">
+    <div class="seg" role="group" aria-label="Výřez mapy">
+      <button type="button" data-view-btn="svet" aria-pressed="true">Svět</button>
+      <button type="button" data-view-btn="evropa" aria-pressed="false">Evropa</button>
+      <span class="seg-ind" aria-hidden="true"></span>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="sw sw-visited"></i>navštíveno</span>
+      <span><i class="sw sw-pin"></i>místo</span>
+    </div>
+  </div>
+
+  <figure class="map-figure">
+    <div class="map-frame">
+      <svg viewBox={views.svet.join(' ')} role="img" aria-label={label}>
+        <path class="graticule" d={path(geoGraticule10())}></path>
+        <g>
+          {
+            shapes.map((s) => (
+              <path
+                class:list={['country', { visited: s.visited }]}
+                d={s.d}
+                data-tip={s.tip}
+                style={s.visited ? `--i: ${s.index}` : undefined}
+              />
+            ))
+          }
         </g>
-      ))
-    }
-  </svg>
-</figure>
+        <g>
+          {
+            places.map((p) => (
+              <g
+                class="pin"
+                transform={`translate(${p.x} ${p.y})`}
+                data-tip={[p.name, p.note].filter(Boolean).join(' · ')}
+                style={`--i: ${p.i}`}
+              >
+                <circle class="pin-ring" r="4" data-r="4" />
+                <circle class="pin-dot" r="3.2" data-r="3.2" />
+                <circle class="pin-hit" r="10" data-r="10" />
+              </g>
+            ))
+          }
+        </g>
+      </svg>
+    </div>
+    <div class="tip" aria-hidden="true"></div>
+  </figure>
+</div>
+
+<script>
+  type Box = [number, number, number, number];
+
+  const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+  function initMap(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = 'true';
+
+    const svg = root.querySelector('svg')!;
+    const figure = root.querySelector<HTMLElement>('.map-figure')!;
+    const tip = root.querySelector<HTMLElement>('.tip')!;
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-view-btn]'));
+    const circles = Array.from(svg.querySelectorAll<SVGCircleElement>('circle[data-r]'));
+    const views = JSON.parse(root.dataset.views ?? '{}') as Record<string, Box>;
+    const worldWidth = views.svet[2];
+
+    let current: Box = [...views.svet];
+    let frame = 0;
+
+    // Při přiblížení zmenšujeme špendlíky, ať mají na obrazovce pořád stejnou velikost.
+    const apply = (box: Box) => {
+      svg.setAttribute('viewBox', box.map((n) => n.toFixed(2)).join(' '));
+      const k = box[2] / worldWidth;
+      for (const c of circles) c.setAttribute('r', (Number(c.dataset.r) * k).toFixed(3));
+    };
+
+    const go = (name: string) => {
+      const target = views[name];
+      if (!target) return;
+      root.dataset.view = name;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.viewBtn === name)));
+      cancelAnimationFrame(frame);
+
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || document.hidden) {
+        current = [...target];
+        apply(current);
+        return;
+      }
+
+      // Plynulý zoom: střed se posouvá lineárně, měřítko geometricky.
+      const from = current;
+      const fromCenter = [from[0] + from[2] / 2, from[1] + from[3] / 2];
+      const toCenter = [target[0] + target[2] / 2, target[1] + target[3] / 2];
+      const aspect = from[3] / from[2];
+      const start = performance.now();
+      const duration = 1100;
+
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const e = easeInOutCubic(t);
+        const w = from[2] * Math.pow(target[2] / from[2], e);
+        const h = w * aspect;
+        const cx = fromCenter[0] + (toCenter[0] - fromCenter[0]) * e;
+        const cy = fromCenter[1] + (toCenter[1] - fromCenter[1]) * e;
+        current = t < 1 ? [cx - w / 2, cy - h / 2, w, h] : [...target];
+        apply(current);
+        if (t < 1) frame = requestAnimationFrame(step);
+      };
+      frame = requestAnimationFrame(step);
+    };
+
+    buttons.forEach((b) => b.addEventListener('click', () => go(b.dataset.viewBtn ?? 'svet')));
+
+    // Tooltip
+    const hide = () => tip.classList.remove('on');
+    const show = (event: PointerEvent) => {
+      const el = (event.target as Element).closest<SVGElement>('[data-tip]');
+      if (!el) return hide();
+      tip.textContent = el.dataset.tip ?? '';
+      const rect = figure.getBoundingClientRect();
+      const half = tip.offsetWidth / 2;
+      const x = Math.min(Math.max(event.clientX - rect.left, half), rect.width - half);
+      const y = event.clientY - rect.top;
+      tip.style.transform = `translate(${x}px, ${y}px)`;
+      tip.classList.add('on');
+    };
+
+    svg.addEventListener('pointermove', show);
+    svg.addEventListener('pointerdown', show);
+    svg.addEventListener('pointerleave', hide);
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-map]').forEach(initMap);
+  });
+</script>
 
 <style>
-  .map {
-    margin: 0;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: var(--surface);
-    padding: 12px;
-    overflow: hidden;
+  .map-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-bottom: 14px;
   }
+
+  /* Přepínač Svět / Evropa s klouzavým ukazatelem */
+  .seg {
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--surface);
+  }
+
+  .seg button {
+    position: relative;
+    z-index: 1;
+    padding: 5px 16px;
+    border: 0;
+    background: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .seg button:hover,
+  .seg button[aria-pressed='true'] {
+    color: var(--text);
+  }
+
+  .seg-ind {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 8px;
+    background: var(--hover);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: transform 0.5s var(--ease);
+  }
+
+  .map[data-view='evropa'] .seg-ind {
+    transform: translateX(100%);
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8125rem;
+    color: var(--text-3);
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .sw {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .sw-visited {
+    background: var(--accent);
+  }
+
+  .sw-pin {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text);
+  }
+
+  .map-figure {
+    position: relative;
+    margin: 0;
+  }
+
+  .map-frame {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+  }
+
   svg {
     display: block;
     width: 100%;
     height: auto;
+    touch-action: manipulation;
   }
+
   .graticule {
     fill: none;
     stroke: var(--line);
-    stroke-width: 0.5;
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
   }
+
   .country {
     fill: var(--map-land);
-    stroke: var(--map-stroke);
-    stroke-width: 0.5;
-    transition: fill 0.15s;
+    stroke: var(--surface);
+    stroke-width: 0.7;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.2s;
   }
+
   .country:hover {
-    fill: var(--muted);
+    fill: var(--map-land-hover);
   }
+
   .country.visited {
-    fill: var(--map-visited);
+    fill: var(--accent);
+    animation: paint 1.2s var(--ease) backwards;
+    animation-delay: calc(0.6s + var(--i, 0) * 0.08s);
   }
+
   .country.visited:hover {
-    fill: var(--text);
+    fill: color-mix(in srgb, var(--accent) 82%, var(--text));
   }
-  .pin circle {
+
+  @keyframes paint {
+    from {
+      fill: var(--map-land);
+    }
+  }
+
+  .pin-dot {
     fill: var(--text);
     stroke: var(--surface);
-    stroke-width: 1;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pop 0.7s var(--spring) backwards;
+    animation-delay: calc(1.1s + var(--i, 0) * 0.12s);
   }
-  .pin .halo {
+
+  .pin-ring {
     fill: var(--text);
-    opacity: 0.15;
-    stroke: none;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ping 2.8s var(--ease) infinite;
+    animation-delay: calc(1.8s + var(--i, 0) * 0.4s);
+  }
+
+  .pin-hit {
+    fill: transparent;
+  }
+
+  @keyframes pop {
+    from {
+      transform: scale(0);
+    }
+  }
+
+  .tip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    translate: -50% calc(-100% - 14px);
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .tip:global(.on) {
+    opacity: 1;
   }
 </style>

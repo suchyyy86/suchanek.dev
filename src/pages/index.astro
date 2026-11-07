@@ -1,89 +1,159 @@
 ---
 import Base from '../layouts/Base.astro';
-import ProjectCard from '../components/ProjectCard.astro';
-import { publishedProjects } from '../data/projects';
+import ProjectList from '../components/ProjectList.astro';
+import CopyEmail from '../components/CopyEmail.astro';
+import { featuredProjects } from '../data/projects';
+import { experience } from '../data/cv';
+import { site } from '../data/site';
 ---
 
 <Base>
   <section class="hero">
-    <p class="label">Ahoj, jsem</p>
-    <h1>Mariusz Suchanek<span class="accent">.</span></h1>
-    <p class="lead">
-      Vývojář a junior projektový manažer v <a href="https://railsformers.com">Railsformers</a>. Dělám
-      frontend 3D aplikace digitálního dvojčete budovy, weby ve WordPressu a všechno stavím
-      <strong>AI-first</strong>: s Claude Code, přes MCP a s automatizacemi, které šetří čas.
+    <p class="status enter" style="--i: 0">
+      <span class="status-dot" aria-hidden="true"></span>
+      Teď dělám na 3D digitálním dvojčeti budovy
     </p>
-    <p class="muted">
-      Vedle toho studuju ekonomii na VŠB-TUO. Tady si skládám portfolio, CV a věci, které si postavím
-      jen tak pro radost.
+
+    <h1 class="title">
+      <span class="word enter" style="--i: 1">Mariusz</span>{' '}<span class="word enter" style="--i: 2"
+        >Suchanek<span class="accent">.</span></span
+      >
+    </h1>
+
+    <p class="lead enter" style="--i: 3">
+      Vývojář webových aplikací a&nbsp;juniorní projektový manažer. Stavím frontend, weby
+      a&nbsp;automatizace –&nbsp;<em class="serif">AI-first.</em>
     </p>
-    <div class="cta">
-      <a href="/projekty" class="btn">Projekty</a>
-      <a href="/cv" class="btn ghost">CV</a>
-    </div>
+
+    <p class="intro muted enter" style="--i: 4">
+      Pracuju v&nbsp;<a class="link" href="https://railsformers.com" target="_blank" rel="noopener">Railsformers</a>{' '}a&nbsp;studuju
+      ekonomii na VŠB-TUO. Tady sbírám, na čem dělám.
+    </p>
   </section>
 
-  <section>
-    <h2>Poslední věci</h2>
-    <div class="grid">
-      {publishedProjects.slice(0, 4).map((p) => <ProjectCard project={p} />)}
+  <section class="section enter" style="--i: 5">
+    <div class="section-head">
+      <h2 class="section-title">Vybrané projekty</h2>
+      <a href="/projekty" class="more">
+        Všechny
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6h7M6.5 3l3 3-3 3"></path></svg>
+      </a>
     </div>
+    <ProjectList projects={featuredProjects} />
   </section>
 
-  <section>
-    <h2>Co mě baví</h2>
-    <ul class="list">
-      <li><strong>AI ve vývoji:</strong> agenti, MCP, jak z jednoho člověka udělat malý tým.</li>
-      <li><strong>Weby:</strong> rychle, čistě a bez zbytečné složitosti.</li>
-      <li><strong>Automatizace:</strong> procesy, které se dají přestat dělat ručně.</li>
+  <section class="section enter" style="--i: 6">
+    <div class="section-head">
+      <h2 class="section-title">Zkušenosti</h2>
+      <a href="/cv" class="more">
+        Celé CV
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6h7M6.5 3l3 3-3 3"></path></svg>
+      </a>
+    </div>
+    <ul class="rows">
+      {
+        experience.map((e) => (
+          <li class="scroll-in">
+            <div class="row">
+              <span class="row-main">
+                <span class="row-title">{e.company}</span>
+                <span class="row-desc">{e.role}</span>
+              </span>
+              <span class="row-meta">{e.period}</span>
+            </div>
+          </li>
+        ))
+      }
     </ul>
+  </section>
+
+  <section class="section contact scroll-in">
+    <h2 class="section-title">Kontakt</h2>
+    <p class="contact-text">Chceš se spojit nebo něco probrat? Napiš mi.</p>
+    <div class="contact-actions">
+      <CopyEmail />
+      <span class="contact-links">
+        <a class="more" href={site.linkedin} target="_blank" rel="me noopener">
+          LinkedIn
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"></path></svg>
+        </a>
+        <a class="more" href={site.github} target="_blank" rel="me noopener">
+          GitHub
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 8.5l5-5M4.5 3.5h4v4"></path></svg>
+        </a>
+      </span>
+    </div>
   </section>
 </Base>
 
 <style>
   .hero {
-    padding: 24px 0 8px;
+    padding-top: 24px;
   }
-  .lead {
-    font-size: 1.15rem;
-    max-width: 60ch;
-  }
-  .cta {
-    display: flex;
+
+  .status {
+    display: inline-flex;
+    align-items: center;
     gap: 10px;
+    margin-bottom: 36px;
+    padding: 5px 14px 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.8125rem;
+    color: var(--text-2);
+  }
+
+  .status-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .status-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: ping 2.4s var(--ease) infinite 1.2s;
+  }
+
+  .title {
+    margin-bottom: 24px;
+  }
+
+  .word {
+    display: inline-block;
+  }
+
+  .lead {
+    max-width: 40ch;
+  }
+
+  .intro {
+    margin-top: 16px;
+    max-width: 52ch;
+  }
+
+  .contact-text {
+    margin-top: 14px;
+    font-size: 1.1875rem;
+    letter-spacing: -0.012em;
+  }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
     margin-top: 24px;
   }
-  .btn {
-    display: inline-block;
-    padding: 10px 18px;
-    border-radius: 10px;
-    background: var(--text);
-    color: var(--bg);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    border: 1px solid var(--text);
-    transition: background 0.15s, color 0.15s;
-  }
-  .btn:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .btn.ghost {
-    background: transparent;
-    color: var(--text);
-    border-color: var(--line);
-  }
-  .btn.ghost:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: transparent;
-  }
-  .list {
-    padding-left: 1.1em;
-  }
-  .list li {
-    margin-bottom: 0.4em;
+
+  .contact-links {
+    display: flex;
+    gap: 20px;
   }
 </style>

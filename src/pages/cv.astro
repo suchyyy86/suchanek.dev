@@ -1,190 +1,221 @@
 ---
 import Base from '../layouts/Base.astro';
-
-const LINKEDIN = 'https://www.linkedin.com/in/mariusz-suchanek-9263a12a2/';
-
-const experience = [
-  {
-    company: 'Railsformers',
-    href: 'https://railsformers.com',
-    role: 'Vývojář aplikací / juniorní projektový manažer',
-    period: '07/2025 – současnost',
-    points: [
-      'Frontendový vývoj 3D aplikace digitálního dvojčete budovy.',
-      'Vizualizace provozních dat a údajů ze senzorů.',
-      'Vývoj webů ve WordPressu s využitím AI nástrojů a MCP.',
-      'Vedení menších projektů, koordinace vývoje a komunikace s klienty.',
-    ],
-  },
-  {
-    company: 'K2 atmitec',
-    role: 'Maturitní projekt',
-    period: '09/2024 – 03/2025',
-    points: ['Vývoj JavaScript knihovny pro vyhledávání a úpravu překladů v XML souborech.'],
-  },
-  {
-    company: 'Třinecké železárny',
-    role: 'Odborná praxe v IT oddělení',
-    period: '05/2024',
-    points: ['Spolupráce na frontendové a backendové části nového informačního systému.'],
-  },
-];
-
-const education = [
-  {
-    school: 'VŠB – Technická univerzita Ostrava',
-    field: 'Ekonomická fakulta · Ekonomie',
-    period: '2025 – současnost',
-  },
-  {
-    school: 'Střední průmyslová škola Karviná',
-    field: 'Informační technologie · maturita s vyznamenáním',
-    period: '2021 – 2025',
-  },
-];
-
-const skills = [
-  'JavaScript, HTML, CSS',
-  'Vývoj webových aplikací',
-  'Frontend a 3D aplikace',
-  'WordPress',
-  'AI-driven vývoj (MCP)',
-  'Vedení menších projektů',
-  'Komunikace s klienty',
-];
-
-const languages = [
-  { name: 'Čeština', level: 'rodilý mluvčí' },
-  { name: 'Polština', level: 'rodilý mluvčí' },
-  { name: 'Angličtina', level: 'C1 (CAE)' },
-];
-
-const certificates = ['Cambridge English: Advanced (CAE)', 'Řidičský průkaz skupiny B'];
+import { profile, experience, education, skills, languages, certificates } from '../data/cv';
+import { site } from '../data/site';
+import { cz } from '../utils/cz';
 ---
 
 <Base title="CV" description="Životopis Mariusze Suchanka – vývojář webových aplikací a juniorní projektový manažer.">
-  <p class="label">Životopis</p>
-  <h1>CV</h1>
-  <p class="role">Vývojář webových aplikací · Juniorní projektový manažer</p>
-  <p class="muted">
-    Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji
-    technický vývoj, AI nástroje a komunikaci s klienty. Studuji ekonomii na VŠB-TUO.
-  </p>
+  <header class="page-head">
+    <h1 class="page-title enter">CV</h1>
+    <p class="lead enter" style="--i: 1">{cz(site.role)}.</p>
+    <p class="muted profile enter" style="--i: 2">{cz(profile)}</p>
+    <ul class="facts enter" style="--i: 3">
+      <li>{site.location}</li>
+      <li><a class="link" href={`mailto:${site.email}`}>{site.email}</a></li>
+      <li><a class="link" href={site.linkedin} target="_blank" rel="me noopener">LinkedIn</a></li>
+    </ul>
+  </header>
 
-  <ul class="contact">
-    <li>Český Těšín / Ostravsko</li>
-    <li><a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a></li>
-    <li><a href={LINKEDIN} rel="me noopener" target="_blank">LinkedIn ↗</a></li>
-  </ul>
+  <section class="section enter" style="--i: 4">
+    <h2 class="section-title">Pracovní zkušenosti</h2>
+    <ol class="timeline">
+      {
+        experience.map((e) => (
+          <li class="t-item scroll-in">
+            <span class="t-when">{e.period}</span>
+            <div>
+              <h3 class="t-title">
+                {e.href ? (
+                  <a class="link" href={e.href} target="_blank" rel="noopener">
+                    {e.company}
+                  </a>
+                ) : (
+                  e.company
+                )}
+              </h3>
+              <p class="t-sub">{e.role}</p>
+              <ul class="t-points">
+                {e.points.map((p) => (
+                  <li>{cz(p)}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
 
-  <h2>Pracovní zkušenosti</h2>
-  {
-    experience.map((e) => (
-      <article class="item">
-        <div class="item-head">
-          <h3>{e.href ? <a href={e.href}>{e.company}</a> : e.company}</h3>
-          <span class="label">{e.period}</span>
-        </div>
-        <p class="muted sub">{e.role}</p>
-        <ul>
-          {e.points.map((p) => (
-            <li>{p}</li>
-          ))}
-        </ul>
-      </article>
-    ))
-  }
+  <section class="section enter" style="--i: 5">
+    <h2 class="section-title">Vzdělání</h2>
+    <ol class="timeline">
+      {
+        education.map((e) => (
+          <li class="t-item scroll-in">
+            <span class="t-when">{e.period}</span>
+            <div>
+              <h3 class="t-title">{e.school}</h3>
+              <p class="t-sub">{e.field}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
 
-  <h2>Vzdělání</h2>
-  {
-    education.map((e) => (
-      <article class="item">
-        <div class="item-head">
-          <h3>{e.school}</h3>
-          <span class="label">{e.period}</span>
-        </div>
-        <p class="muted sub">{e.field}</p>
-      </article>
-    ))
-  }
+  <section class="section scroll-in">
+    <h2 class="section-title">Dovednosti</h2>
+    <ul class="chips skills">
+      {skills.map((s) => <li>{s}</li>)}
+    </ul>
+  </section>
 
   <div class="cols">
-    <section>
-      <h2>Dovednosti</h2>
-      <ul class="tags">
-        {skills.map((s) => <li>{s}</li>)}
+    <section class="section scroll-in">
+      <h2 class="section-title">Jazyky</h2>
+      <ul class="kv">
+        {
+          languages.map((l) => (
+            <li>
+              <span>{l.name}</span>
+              <span class="faint">{l.level}</span>
+            </li>
+          ))
+        }
       </ul>
     </section>
-    <section>
-      <h2>Jazyky</h2>
-      <ul class="plain">
-        {languages.map((l) => <li><strong>{l.name}</strong> <span class="muted">· {l.level}</span></li>)}
-      </ul>
-      <h2>Certifikace</h2>
-      <ul class="plain">
-        {certificates.map((c) => <li>{c}</li>)}
+
+    <section class="section scroll-in">
+      <h2 class="section-title">Certifikace</h2>
+      <ul class="kv">
+        {certificates.map((c) => <li><span>{c}</span></li>)}
       </ul>
     </section>
   </div>
 </Base>
 
 <style>
-  .role {
-    font-weight: 600;
-    margin-bottom: 0.6em;
+  .page-head {
+    padding-top: 24px;
   }
-  .contact {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 20px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 0.95rem;
-  }
-  .item {
-    padding: 4px 0 12px;
-    border-bottom: 1px solid var(--line);
+
+  .page-title {
     margin-bottom: 16px;
   }
-  .item:last-of-type {
-    border-bottom: 0;
+
+  .profile {
+    margin-top: 12px;
+    max-width: 56ch;
   }
-  .item-head {
+
+  .facts {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
     flex-wrap: wrap;
-    gap: 4px 16px;
+    gap: 6px 22px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9375rem;
+    color: var(--text-2);
   }
-  .item h3 {
-    margin: 0;
+
+  .timeline {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
   }
-  .sub {
-    margin: 0.15em 0 0;
-    font-size: 0.95rem;
+
+  .t-item {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: 4px 24px;
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
   }
-  .item ul {
-    padding-left: 1.1em;
-    margin: 0.5em 0 0;
+
+  .t-item:first-child {
+    border-top: 0;
+    padding-top: 10px;
   }
-  .item li {
-    margin-bottom: 0.3em;
+
+  .t-when {
+    padding-top: 3px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
   }
+
+  .t-title {
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .t-sub {
+    margin-top: 2px;
+    font-size: 0.9375rem;
+    color: var(--text-2);
+  }
+
+  .t-points {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9375rem;
+    color: var(--text-2);
+  }
+
+  .t-points li {
+    position: relative;
+    margin-top: 6px;
+    padding-left: 18px;
+  }
+
+  .t-points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.78em;
+    width: 7px;
+    height: 1px;
+    background: var(--text-3);
+  }
+
+  .skills {
+    margin-top: 16px;
+  }
+
   .cols {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 40px;
   }
-  .plain {
+
+  .kv {
     list-style: none;
+    margin: 10px 0 0;
     padding: 0;
-    margin: 0;
+    font-size: 0.9375rem;
   }
-  .plain li {
-    margin-bottom: 0.3em;
+
+  .kv li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
   }
-  @media (max-width: 600px) {
+
+  .kv li:first-child {
+    border-top: 0;
+  }
+
+  @media (max-width: 560px) {
+    .t-item {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .cols {
       grid-template-columns: 1fr;
     }

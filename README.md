@@ -1,6 +1,6 @@
 # suchanek.dev
 
-Osobní web Mariusze Suchanka: portfolio, CV a lab s projekty. Postavené v [Astru](https://astro.build), hostované na Vercelu.
+Osobní web Mariusze Suchanka: portfolio, projekty a CV. Postavené v [Astru](https://astro.build), hostované na Vercelu.
 
 ## Spuštění
 
@@ -14,13 +14,22 @@ npm run build    # statický výstup do dist/
 
 | Co | Soubor |
 |---|---|
-| Projekty (portfolio, lab) | `src/data/projects.ts` — `draft: true` projekt skryje |
-| CV | `src/pages/cv.astro` |
-| Úvodní text | `src/pages/index.astro` |
+| Kontakty | `src/data/site.ts` |
+| Projekty – `featured: true` je ukáže na úvodu, `draft: true` je skryje | `src/data/projects.ts` |
+| CV | `src/data/cv.ts` |
 | Mapa cest – navštívené země a místa | `src/data/travels.json` |
 
 ### Mapa cest
 
-- `countries[].id` je číselný kód ISO 3166-1 (Česko `203`, Slovensko `703`, Polsko `616`, Německo `276`, Rakousko `040`…).
-- `places[]` jsou konkrétní místa: `lat`/`lon`, rok a poznámka se zobrazí v tooltipu.
-- Mapa se generuje při buildu do čistého SVG (d3-geo + world-atlas 110m), v prohlížeči neběží žádný JS.
+```json
+{
+  "countries": [{ "code": "CZ", "note": "Doma" }],
+  "places": [{ "name": "Ostrava", "lat": 49.8209, "lon": 18.2625, "note": "VŠB" }]
+}
+```
+
+- `countries[].code` je dvoupísmenný ISO kód země (`CZ`, `SK`, `PL`, `DE`, `AT`, `HR`…). Český název se doplní sám.
+- `places[]` jsou konkrétní místa. Název a poznámka se ukážou v tooltipu.
+- Mapa se generuje při buildu do čistého SVG, v prohlížeči neběží žádná mapová knihovna.
+
+Pro AI agenty jsou konvence projektu v [AGENTS.md](AGENTS.md).

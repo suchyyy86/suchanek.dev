@@ -12,8 +12,12 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
     "astro": "^7.4.7",
     "d3-geo": "^3.1.2",
+    "i18n-iso-countries": "^7.14.0",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   },
@@ -22,7 +26,9 @@
     "@types/d3-geo": "^3.1.1",
     "@types/geojson": "^7946.0.16",
     "@types/topojson-client": "^3.1.5",
+    "@types/topojson-simplify": "^3.0.3",
     "@types/topojson-specification": "^1.0.5",
+    "topojson-simplify": "^3.0.3",
     "typescript": "^6.0.3"
   }
 }

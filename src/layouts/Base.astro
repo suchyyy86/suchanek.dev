@@ -1,5 +1,10 @@
 ---
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '@fontsource/instrument-serif/400-italic.css';
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import { site } from '../data/site';
 
 interface Props {
   title?: string;
@@ -9,22 +14,21 @@ interface Props {
 
 const {
   title,
-  description = 'Mariusz Suchanek – vývojář a junior projektový manažer. AI-first vývoj, weby a automatizace.',
+  description = `${site.name} – ${site.role.toLowerCase()}. AI-first vývoj, weby a automatizace.`,
   wide = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} · Mariusz Suchanek` : 'Mariusz Suchanek';
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} – vývojář`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const canonical = new URL(Astro.url.pathname, Astro.site);
 
 const nav = [
   { href: '/', label: 'Úvod' },
   { href: '/projekty', label: 'Projekty' },
-  { href: '/lab', label: 'Lab' },
   { href: '/cv', label: 'CV' },
 ];
 
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -36,121 +40,181 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="canonical" href={canonical} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="author" content={site.name} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="cs_CZ" />
+    <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
   </head>
   <body>
-    <header class="site-header">
-      <div class={wide ? 'wrap-wide' : 'wrap'}>
-        <a href="/" class="logo">suchanek<span class="accent">.</span>dev</a>
-        <nav>
+    <header class="header" transition:name="site-header">
+      <div class:list={['wrap', 'header-inner', { wide }]}>
+        <a href="/" class="logo" aria-label="suchanek.dev – úvod">suchanek<span class="logo-dot">.</span>dev</a>
+        <nav class="nav" aria-label="Hlavní navigace">
           {
-            nav.map((item) => (
-              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
-                {item.label}
-              </a>
-            ))
+            nav.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <a href={item.href} class="nav-link" aria-current={active ? 'page' : undefined}>
+                  {active && <span class="nav-pill" transition:name="nav-pill" />}
+                  {item.label}
+                </a>
+              );
+            })
           }
         </nav>
       </div>
     </header>
 
-    <main class={wide ? 'wrap-wide' : 'wrap'}>
+    <main class:list={['wrap', 'main', { wide }]}>
       <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class={wide ? 'wrap-wide' : 'wrap'}>
-        <span>© {new Date().getFullYear()} Mariusz Suchanek</span>
-        <span class="links">
-          <a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a>
-          <a href="https://www.linkedin.com/in/mariusz-suchanek-9263a12a2/" rel="me">LinkedIn</a>
-          <a href="https://github.com/suchyyy86" rel="me">GitHub</a>
+    <footer class="footer">
+      <div class:list={['wrap', 'footer-inner', { wide }]}>
+        <span>© {new Date().getFullYear()} {site.name}</span>
+        <span class="footer-links">
+          <span class="clock" title="Místní čas">
+            <span class="clock-dot" aria-hidden="true"></span>Český Těšín <time data-clock></time>
+          </span>
+          <a class="link" href={site.linkedin} rel="me noopener" target="_blank">LinkedIn</a>
+          <a class="link" href={site.github} rel="me noopener" target="_blank">GitHub</a>
         </span>
       </div>
     </footer>
+
+    <script>
+      import '../scripts/site.ts';
+    </script>
   </body>
 </html>
 
 <style>
-  .site-header > div {
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding-top: 28px;
-    padding-bottom: 28px;
+    height: 88px;
+    padding-top: 12px;
   }
 
   .logo {
     font-family: var(--mono);
-    font-weight: 700;
-    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
     letter-spacing: -0.02em;
   }
 
-  nav {
+  .logo-dot {
+    display: inline-block;
+    color: var(--accent);
+    transition: transform 0.5s var(--spring);
+  }
+
+  .logo:hover .logo-dot {
+    transform: translateY(-4px);
+  }
+
+  .nav {
     display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    gap: 2px;
+    margin-right: -12px;
   }
 
-  nav a {
-    text-decoration: none;
-    font-size: 0.93rem;
-    padding: 4px 10px;
-    border-radius: 8px;
-    color: var(--muted);
-    transition: color 0.15s, background 0.15s;
+  .nav-link {
+    position: relative;
+    isolation: isolate;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    color: var(--text-3);
+    transition: color 0.25s;
   }
 
-  nav a:hover {
+  .nav-link:hover,
+  .nav-link[aria-current='page'] {
     color: var(--text);
   }
 
-  nav a[aria-current='page'] {
-    color: var(--text);
-    background: var(--line);
+  .nav-pill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--text) 7%, transparent);
   }
 
-  main {
-    padding-top: 32px;
-    padding-bottom: 80px;
-    min-height: 70vh;
+  .main {
+    flex: 1 0 auto;
+    padding-top: 56px;
+    padding-bottom: 128px;
   }
 
-  .site-footer {
-    border-top: 1px solid var(--line);
-    font-size: 0.88rem;
-    color: var(--muted);
+  .footer {
+    font-size: 0.8125rem;
+    color: var(--text-3);
   }
 
-  .site-footer > div {
+  .footer-inner {
+    position: relative;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 8px 20px;
-    padding-top: 24px;
-    padding-bottom: 32px;
+    gap: 10px 24px;
+    padding-top: 28px;
+    padding-bottom: 40px;
   }
 
-  .links {
+  .footer-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--gutter);
+    right: var(--gutter);
+    height: 1px;
+    background: var(--line);
+  }
+
+  .footer-links {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
   }
 
-  @media (max-width: 480px) {
-    .site-header > div {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+  .footer-links a {
+    color: var(--text-2);
+  }
+
+  .clock {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .clock-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 18%, transparent);
+  }
+
+  @media (max-width: 560px) {
+    .header-inner {
+      height: 72px;
     }
-    nav {
-      margin-left: -10px;
+
+    .main {
+      padding-top: 32px;
+      padding-bottom: 96px;
     }
   }
 </style>
