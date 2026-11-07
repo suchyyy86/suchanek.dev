@@ -5,10 +5,16 @@ import CopyEmail from '../components/CopyEmail.astro';
 
 <Base>
   <section class="hero">
-    <h1 class="title">
-      <span class="word enter">Mariusz</span>{' '}<span class="word enter" style="--i: 1"
-        >Suchanek<span class="accent">.</span></span
-      >
+    <h1 class="title" aria-label="Mariusz Suchanek">
+      <span class="name-word" aria-hidden="true">
+        {Array.from('Mariusz').map((letter, index) => (
+          <span class="name-letter" style={`--letter: ${index}`}>{letter}</span>
+        ))}
+      </span>{' '}<span class="name-word surname" aria-hidden="true">
+        {Array.from('Suchanek').map((letter, index) => (
+          <span class="name-letter" style={`--letter: ${index + 7}`}>{letter}</span>
+        ))}<span class="name-dot"></span>
+      </span>
     </h1>
 
     <p class="lead enter" style="--i: 2">
@@ -34,8 +40,53 @@ import CopyEmail from '../components/CopyEmail.astro';
     margin-bottom: 24px;
   }
 
-  .word {
+  .title {
+    font-size: clamp(2rem, 8.5vw, 3.75rem);
+  }
+
+  .name-word {
     display: inline-block;
+    white-space: nowrap;
+  }
+
+  .name-letter {
+    display: inline-block;
+    animation: name-reveal 800ms var(--ease) backwards;
+    animation-delay: calc(80ms + var(--letter) * 38ms);
+  }
+
+  .name-dot {
+    display: inline-block;
+    width: 0.12em;
+    height: 0.12em;
+    margin-left: 0.035em;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: dot-reveal 650ms var(--spring) 720ms backwards;
+  }
+
+  @keyframes name-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(0.25em);
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+
+  @keyframes dot-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-0.35em) scale(0.3);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .lead {

@@ -5,6 +5,8 @@
 :root {
   --bg: #fbfbfa;
   --surface: #ffffff;
+  --ambient-glow: color-mix(in srgb, var(--accent) 7%, transparent);
+  --ambient-grid: color-mix(in srgb, var(--text) 4%, transparent);
   --text: #111111;
   --text-2: #555555;
   --text-3: #737373;
@@ -33,6 +35,7 @@
   :root {
     --bg: #0a0a0a;
     --surface: #111111;
+    --ambient-glow: color-mix(in srgb, var(--accent) 10%, transparent);
     --text: #ededed;
     --text-2: #a3a3a3;
     --text-3: #7c7c7c;
@@ -69,6 +72,7 @@ html {
 }
 
 body {
+  isolation: isolate;
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
@@ -439,6 +443,58 @@ button {
   }
 
   .scroll-in {
+    animation: none !important;
+  }
+}
+
+/* Jemná atmosféra za obsahem, bez zachytávání dotyků a kliknutí. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  contain: strict;
+}
+
+.ambient-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--ambient-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ambient-grid) 1px, transparent 1px);
+  background-size: 88px 88px;
+  mask-image: radial-gradient(ellipse at 70% 20%, black, transparent 70%);
+}
+
+.ambient-glow {
+  position: absolute;
+  top: -28%;
+  right: -20%;
+  width: min(110vw, 1100px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, var(--ambient-glow), transparent 65%);
+  animation: ambient-drift 24s ease-in-out infinite alternate;
+}
+
+.ambient-orbit {
+  position: absolute;
+  top: 12%;
+  right: -220px;
+  width: 520px;
+  aspect-ratio: 1;
+  border: 1px solid var(--ambient-grid);
+  border-radius: 50%;
+  animation: ambient-drift 32s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes ambient-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-35px, 45px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow,
+  .ambient-orbit {
     animation: none !important;
   }
 }

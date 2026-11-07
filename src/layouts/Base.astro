@@ -52,6 +52,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     <ClientRouter />
   </head>
   <body>
+    <div class="ambient" aria-hidden="true" transition:persist="ambient">
+      <div class="ambient-grid"></div>
+      <div class="ambient-glow"></div>
+      <div class="ambient-orbit"></div>
+    </div>
     <header class="header" transition:name="site-header">
       <div class:list={['wrap', 'header-inner', { wide }]}>
         <a href="/" class="logo" aria-label="suchanek.dev – úvod">suchanek<span class="logo-dot">.</span>dev</a>
