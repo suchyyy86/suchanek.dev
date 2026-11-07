@@ -1,53 +1,91 @@
 ---
 import Base from '../layouts/Base.astro';
 
-// Doplň roky nástupu/začátku studia a případně další položky.
+const LINKEDIN = 'https://www.linkedin.com/in/mariusz-suchanek-9263a12a2/';
+
 const experience = [
   {
-    role: 'Vývojář & junior projektový manažer',
     company: 'Railsformers',
     href: 'https://railsformers.com',
-    period: 'současnost',
+    role: 'Vývojář aplikací / juniorní projektový manažer',
+    period: '07/2025 – současnost',
     points: [
-      'Frontend, postupně i backend, s AI-first přístupem (Claude Code, agenti, MCP).',
-      'Stavba webů ve WordPressu a Bricks přes Bricks MCP, 1:1 podle návrhů ve Figmě.',
-      'Řízení menších projektů a komunikace s klienty, SEO a technická údržba webů.',
+      'Frontendový vývoj 3D aplikace digitálního dvojčete budovy.',
+      'Vizualizace provozních dat a údajů ze senzorů.',
+      'Vývoj webů ve WordPressu s využitím AI nástrojů a MCP.',
+      'Vedení menších projektů, koordinace vývoje a komunikace s klienty.',
     ],
+  },
+  {
+    company: 'K2 atmitec',
+    role: 'Maturitní projekt',
+    period: '09/2024 – 03/2025',
+    points: ['Vývoj JavaScript knihovny pro vyhledávání a úpravu překladů v XML souborech.'],
+  },
+  {
+    company: 'Třinecké železárny',
+    role: 'Odborná praxe v IT oddělení',
+    period: '05/2024',
+    points: ['Spolupráce na frontendové a backendové části nového informačního systému.'],
   },
 ];
 
 const education = [
   {
-    school: 'VŠB – Technická univerzita Ostrava, Ekonomická fakulta',
-    field: 'Ekonomie',
-    period: 'studium probíhá',
+    school: 'VŠB – Technická univerzita Ostrava',
+    field: 'Ekonomická fakulta · Ekonomie',
+    period: '2025 – současnost',
+  },
+  {
+    school: 'Střední průmyslová škola Karviná',
+    field: 'Informační technologie · maturita s vyznamenáním',
+    period: '2021 – 2025',
   },
 ];
 
-const skills = {
-  'AI & nástroje': ['Claude Code', 'MCP', 'AI agenti', 'Prompting', 'Automatizace'],
-  Web: ['JavaScript / TypeScript', 'HTML & CSS', 'Astro', 'WordPress', 'Bricks Builder'],
-  Ostatní: ['Git', 'Figma', 'SEO', 'Projektové řízení'],
-};
+const skills = [
+  'JavaScript, HTML, CSS',
+  'Vývoj webových aplikací',
+  'Frontend a 3D aplikace',
+  'WordPress',
+  'AI-driven vývoj (MCP)',
+  'Vedení menších projektů',
+  'Komunikace s klienty',
+];
+
+const languages = [
+  { name: 'Čeština', level: 'rodilý mluvčí' },
+  { name: 'Polština', level: 'rodilý mluvčí' },
+  { name: 'Angličtina', level: 'C1 (CAE)' },
+];
+
+const certificates = ['Cambridge English: Advanced (CAE)', 'Řidičský průkaz skupiny B'];
 ---
 
-<Base title="CV" description="Životopis Mariusze Suchánka – zkušenosti, vzdělání a dovednosti.">
+<Base title="CV" description="Životopis Mariusze Suchanka – vývojář webových aplikací a juniorní projektový manažer.">
   <p class="label">Životopis</p>
   <h1>CV</h1>
+  <p class="role">Vývojář webových aplikací · Juniorní projektový manažer</p>
   <p class="muted">
-    20 let. Vývojář, který staví s AI, a junior PM. Kontakt: <a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a>
+    Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji
+    technický vývoj, AI nástroje a komunikaci s klienty. Studuji ekonomii na VŠB-TUO.
   </p>
 
-  <h2>Zkušenosti</h2>
+  <ul class="contact">
+    <li>Český Těšín / Ostravsko</li>
+    <li><a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a></li>
+    <li><a href={LINKEDIN} rel="me noopener" target="_blank">LinkedIn ↗</a></li>
+  </ul>
+
+  <h2>Pracovní zkušenosti</h2>
   {
     experience.map((e) => (
       <article class="item">
         <div class="item-head">
-          <h3>
-            {e.role} · <a href={e.href}>{e.company}</a>
-          </h3>
+          <h3>{e.href ? <a href={e.href}>{e.company}</a> : e.company}</h3>
           <span class="label">{e.period}</span>
         </div>
+        <p class="muted sub">{e.role}</p>
         <ul>
           {e.points.map((p) => (
             <li>{p}</li>
@@ -65,29 +103,45 @@ const skills = {
           <h3>{e.school}</h3>
           <span class="label">{e.period}</span>
         </div>
-        <p class="muted">{e.field}</p>
+        <p class="muted sub">{e.field}</p>
       </article>
     ))
   }
 
-  <h2>Dovednosti</h2>
-  <div class="skills">
-    {
-      Object.entries(skills).map(([group, items]) => (
-        <div>
-          <p class="label">{group}</p>
-          <ul class="tags">
-            {items.map((s) => (
-              <li>{s}</li>
-            ))}
-          </ul>
-        </div>
-      ))
-    }
+  <div class="cols">
+    <section>
+      <h2>Dovednosti</h2>
+      <ul class="tags">
+        {skills.map((s) => <li>{s}</li>)}
+      </ul>
+    </section>
+    <section>
+      <h2>Jazyky</h2>
+      <ul class="plain">
+        {languages.map((l) => <li><strong>{l.name}</strong> <span class="muted">· {l.level}</span></li>)}
+      </ul>
+      <h2>Certifikace</h2>
+      <ul class="plain">
+        {certificates.map((c) => <li>{c}</li>)}
+      </ul>
+    </section>
   </div>
 </Base>
 
 <style>
+  .role {
+    font-weight: 600;
+    margin-bottom: 0.6em;
+  }
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95rem;
+  }
   .item {
     padding: 4px 0 12px;
     border-bottom: 1px solid var(--line);
@@ -103,18 +157,36 @@ const skills = {
     flex-wrap: wrap;
     gap: 4px 16px;
   }
+  .item h3 {
+    margin: 0;
+  }
+  .sub {
+    margin: 0.15em 0 0;
+    font-size: 0.95rem;
+  }
   .item ul {
     padding-left: 1.1em;
-    margin: 0.4em 0 0;
+    margin: 0.5em 0 0;
   }
   .item li {
     margin-bottom: 0.3em;
   }
-  .skills {
+  .cols {
     display: grid;
-    gap: 18px;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 40px;
   }
-  .skills .label {
-    margin-bottom: 8px;
+  .plain {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .plain li {
+    margin-bottom: 0.3em;
+  }
+  @media (max-width: 600px) {
+    .cols {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

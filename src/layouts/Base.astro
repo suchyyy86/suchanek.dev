@@ -9,11 +9,11 @@ interface Props {
 
 const {
   title,
-  description = 'Mariusz Suchánek – vývojář a junior projektový manažer. AI-first vývoj, weby a automatizace.',
+  description = 'Mariusz Suchanek – vývojář a junior projektový manažer. AI-first vývoj, weby a automatizace.',
   wide = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} · Mariusz Suchánek` : 'Mariusz Suchánek';
+const fullTitle = title ? `${title} · Mariusz Suchanek` : 'Mariusz Suchanek';
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 const nav = [
@@ -64,9 +64,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <footer class="site-footer">
       <div class={wide ? 'wrap-wide' : 'wrap'}>
-        <span>© {new Date().getFullYear()} Mariusz Suchánek</span>
+        <span>© {new Date().getFullYear()} Mariusz Suchanek</span>
         <span class="links">
           <a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a>
+          <a href="https://www.linkedin.com/in/mariusz-suchanek-9263a12a2/" rel="me">LinkedIn</a>
           <a href="https://github.com/suchyyy86" rel="me">GitHub</a>
         </span>
       </div>

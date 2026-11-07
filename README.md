@@ -1,6 +1,6 @@
 # suchanek.dev
 
-Osobní web Mariusze Suchánka: portfolio, CV a lab s projekty. Postavené v [Astru](https://astro.build), hostované na Vercelu.
+Osobní web Mariusze Suchanka: portfolio, CV a lab s projekty. Postavené v [Astru](https://astro.build), hostované na Vercelu.
 
 ## Spuštění
 
