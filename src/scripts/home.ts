@@ -56,11 +56,12 @@ function initializeStory(story: HTMLElement) {
       const accent = tokens.getPropertyValue('--accent').trim();
       colors = {
         accent,
-        surface: mix(tokens.getPropertyValue('--surface').trim(), accent, 0.12),
-        line: mix(tokens.getPropertyValue('--line').trim(), accent, 0.42),
+        surface: mix(tokens.getPropertyValue('--surface').trim(), accent, 0.16),
+        line: mix(tokens.getPropertyValue('--line').trim(), accent, 0.45),
       };
       pillWidth = elements.pill.offsetWidth;
       pillHeight = elements.pill.offsetHeight;
+      points[2].x -= (pillWidth - pillHeight) / 2;
       dotSize = elements.startAnchor.offsetWidth;
       render();
     }
@@ -83,7 +84,7 @@ function initializeStory(story: HTMLElement) {
       setScene(0, 1 - introExit, 1, introExit);
       setScene(1, ease(workEnter) * (1 - workExit), workEnter, workExit);
       setScene(2, ease(contactEnter), contactEnter, 0);
-      gsap.set(elements.pill, { opacity: ease(between(p, 0.88, 0.96)), y: 0 });
+      gsap.set(elements.pill, { opacity: ease(between(p, 0.91, 0.975)), y: 0 });
       gsap.set(meter, { scaleY: p });
 
       const currentScene = p < 0.28 ? 0 : p < 0.7 ? 1 : 2;
@@ -95,7 +96,7 @@ function initializeStory(story: HTMLElement) {
         activeScene = currentScene;
         if (scrollLabel) scrollLabel.textContent = ['Posuň se dál', 'Pokračuj', 'Kontakt'][currentScene];
       }
-      elements.pill.inert = p < 0.94;
+      elements.pill.inert = p < 0.975;
 
       // The same dot travels along two arcs, settles, then becomes the contact surface.
       const segment = p < 0.58 ? 0 : 1;
@@ -107,15 +108,17 @@ function initializeStory(story: HTMLElement) {
       const lateral = Math.min(elements.stage.offsetWidth * 0.17, 155);
       const x = mix(from.x, to.x, t) + arc * lateral;
       const y = mix(from.y, to.y, t) - arc * Math.min(elements.stage.offsetHeight * 0.15, 110);
-      const spread = ease(between(p, 0.82, 0.93));
+      const spread = ease(between(p, 0.855, 0.94));
+      const grow = ease(between(p, 0.81, 0.87));
       const landing = Math.sin(between(travel, 0.8, 1) * Math.PI) * (1 - spread);
-      const width = mix(dotSize, pillWidth, spread);
-      const height = mix(dotSize, pillHeight, spread);
+      const height = mix(dotSize, pillHeight, grow);
+      const width = mix(height, pillWidth, spread);
       gsap.set(elements.dot, {
-        x: x - width / 2,
+        x: x + (width - height) / 2 - width / 2,
         y: y - height / 2,
         width,
         height,
+        borderRadius: mix(height / 2, 16, spread),
         backgroundColor: mix(colors.accent, colors.surface, spread),
         borderColor: mix('rgba(0, 0, 0, 0)', colors.line, spread),
         scaleX: 1 + landing * 0.2,

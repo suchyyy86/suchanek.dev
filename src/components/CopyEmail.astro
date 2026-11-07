@@ -8,117 +8,70 @@ interface Props {
 const { email = site.email } = Astro.props;
 ---
 
-<div class="copy" data-copy-box>
-  <a href={`mailto:${email}`} class="copy-link">{email}</a>
-  <button type="button" class="copy-btn" data-copy={email} aria-label="Zkopírovat e-mail">
-    <svg class="ic ic-copy" viewBox="0 0 16 16" aria-hidden="true">
-      <rect x="5.5" y="5.5" width="8" height="8" rx="2"></rect>
-      <path d="M10.5 3.5V3A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5"></path>
-    </svg>
-    <svg class="ic ic-check" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M3.5 8.5l3 3 6-7"></path>
-    </svg>
-  </button>
-  <span class="copy-toast" data-copy-toast role="status" aria-live="polite"></span>
-</div>
+<button class="copy" type="button" data-copy={email} data-copy-box aria-label={`Zkopírovat e-mail ${email}`}>
+  <span class="copy-value" data-copy-value>{email}</span>
+  <span class="copy-feedback" data-copy-toast role="status" aria-live="polite" aria-atomic="true"></span>
+</button>
 
 <style>
   .copy {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 4px 4px 18px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-  }
-
-  .copy-link {
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-
-  .copy-btn {
-    display: grid;
+    display: inline-grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--text-3);
-    cursor: pointer;
-    transition:
-      background-color 0.2s,
-      color 0.2s,
-      transform 0.2s var(--ease);
-  }
-
-  .copy-btn:hover {
-    background: var(--hover);
+    min-height: 56px;
+    padding: 15px 28px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--accent) 16%, var(--surface));
     color: var(--text);
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 250ms var(--ease), border-color 250ms var(--ease);
   }
 
-  .copy-btn:active {
-    transform: scale(0.92);
+  .copy:hover {
+    background: color-mix(in srgb, var(--accent) 24%, var(--surface));
+    border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
   }
 
-  .ic {
+  .copy:active {
+    background: color-mix(in srgb, var(--accent) 32%, var(--surface));
+  }
+
+  .copy-value,
+  .copy-feedback {
     grid-area: 1 / 1;
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition:
-      opacity 0.25s var(--ease),
-      transform 0.45s var(--spring),
-      filter 0.25s;
+    transition: opacity 200ms var(--ease), transform 300ms var(--ease);
   }
 
-  .ic-check {
-    color: var(--accent);
+  .copy-feedback {
     opacity: 0;
-    transform: scale(0.4);
-    filter: blur(2px);
+    transform: translateY(5px);
   }
 
-  .copied .ic-copy {
+  .copied .copy-value {
     opacity: 0;
-    transform: scale(0.4);
-    filter: blur(2px);
+    transform: translateY(-5px);
   }
 
-  .copied .ic-check {
+  .copied .copy-feedback {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 
-  .copy-toast {
+  .copy-failed .copy-value { user-select: all; }
+
+  .copy-failed .copy-feedback {
     position: absolute;
-    right: 0;
-    bottom: calc(100% + 8px);
-    padding: 4px 9px;
-    border-radius: 7px;
-    background: var(--text);
-    color: var(--bg);
+    top: calc(100% + 10px);
     font-size: 0.75rem;
-    font-weight: 500;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(4px) scale(0.96);
-    transition:
-      opacity 0.25s var(--ease),
-      transform 0.35s var(--ease);
-  }
-
-  .copied .copy-toast {
+    font-weight: 400;
+    color: var(--text-2);
     opacity: 1;
     transform: none;
   }

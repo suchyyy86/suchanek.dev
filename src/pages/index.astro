@@ -124,23 +124,6 @@ import CopyEmail from '../components/CopyEmail.astro';
     margin-top: 48px;
   }
 
-  .contact-pill :global(.copy) {
-    padding: 10px 10px 10px 22px;
-    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-    border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
-    gap: 18px;
-    font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
-  }
-
-  .contact-pill :global(.copy-link) { font-weight: 400; }
-
-  .contact-pill :global(.copy-btn) {
-    width: 32px;
-    height: 32px;
-    color: var(--text-2);
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
-  }
-
   .travel-dot,
   .scroll-cue { display: none; }
 
@@ -188,10 +171,13 @@ import CopyEmail from '../components/CopyEmail.astro';
     color: var(--text);
   }
 
-  .is-enhanced .contact-pill :global(.ic-check) { color: var(--accent); }
+  .is-enhanced .contact-pill :global(.copy:hover) {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
 
-  .contact-pill :global(.copy-btn:hover) {
-    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  .is-enhanced .contact-pill :global(.copy:active) {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
   }
 
   .is-enhanced .scroll-cue {
@@ -231,7 +217,6 @@ import CopyEmail from '../components/CopyEmail.astro';
     .contact-title { font-size: clamp(3.3rem, 13vw, 5rem); }
     .scene-note { margin-top: 32px; }
     .contact-pill { margin-top: 36px; }
-    .contact-pill :global(.copy) { gap: 12px; padding-left: 20px; }
     .is-enhanced .scene { padding-block: 88px 100px; }
     .is-enhanced .scroll-cue { bottom: 28px; }
   }

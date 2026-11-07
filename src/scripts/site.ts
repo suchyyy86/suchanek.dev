@@ -1,28 +1,29 @@
-// Skripty společné pro celý web. Běží jednou, s ClientRouterem přežívají navigaci.
-
-// Kopírování e-mailu
-let copyTimer: number | undefined;
+// Kopírování kontaktu funguje na celé ploše tlačítka i přes klávesnici.
+const copyTimers = new WeakMap<HTMLButtonElement, number>();
 
 document.addEventListener('click', async (event) => {
   const button = (event.target as Element | null)?.closest<HTMLButtonElement>('[data-copy]');
   if (!button) return;
 
   const value = button.dataset.copy ?? '';
-  const box = button.closest<HTMLElement>('[data-copy-box]');
-  const toast = box?.querySelector<HTMLElement>('[data-copy-toast]');
+  const feedback = button.querySelector<HTMLElement>('[data-copy-toast]');
+  const label = button.querySelector<HTMLElement>('[data-copy-value]');
+  window.clearTimeout(copyTimers.get(button));
+  button.classList.remove('copied', 'copy-failed');
 
   try {
     await navigator.clipboard.writeText(value);
-    if (toast) toast.textContent = 'Zkopírováno';
+    if (feedback) feedback.textContent = 'Zkopírováno';
+    button.classList.add('copied');
   } catch {
-    // Schránka není dostupná (oprávnění, starý prohlížeč) – aspoň adresu označíme.
-    const link = box?.querySelector('a');
-    if (link) window.getSelection()?.selectAllChildren(link);
-    if (toast) toast.textContent = 'Označeno, zkopíruj si ji';
+    // Při zamítnutí schránky nabídneme skutečný e-mail k ručnímu zkopírování.
+    if (label) window.getSelection()?.selectAllChildren(label);
+    if (feedback) feedback.textContent = 'Označeno pro ruční zkopírování';
+    button.classList.add('copy-failed');
   }
 
-  box?.classList.add('copied');
-
-  window.clearTimeout(copyTimer);
-  copyTimer = window.setTimeout(() => box?.classList.remove('copied'), 1800);
+  copyTimers.set(button, window.setTimeout(() => {
+    button.classList.remove('copied', 'copy-failed');
+    if (feedback) feedback.textContent = '';
+  }, 2200));
 });
