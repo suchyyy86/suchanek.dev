@@ -131,17 +131,11 @@ function initializeStory(story: HTMLElement) {
       gsap.from(elements.dot, { opacity: 0, scale: 0, duration: 0.65, delay: 0.55, ease: 'back.out(1.7)' });
     }
 
-    const showContact = () => {
-      window.scrollTo({ top: trigger.end });
-      animation.progress(1);
-    };
-    elements.pill.addEventListener('focusin', showContact);
     const observer = new ResizeObserver(() => trigger.refresh());
     observer.observe(elements.pill);
 
     return () => {
       observer.disconnect();
-      elements.pill.removeEventListener('focusin', showContact);
       story.classList.remove('is-enhanced');
       gsap.set([scenes, lines.flat(), notes.filter(Boolean), elements.dot, elements.pill, cue, meter], { clearProps: 'all' });
       scenes.forEach((scene) => {
