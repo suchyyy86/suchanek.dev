@@ -53,10 +53,11 @@ function initializeStory(story: HTMLElement) {
       }
       points = [center(elements.startAnchor), center(elements.workAnchor), center(elements.pill)];
       const tokens = getComputedStyle(document.documentElement);
+      const accent = tokens.getPropertyValue('--accent').trim();
       colors = {
-        accent: tokens.getPropertyValue('--accent').trim(),
-        surface: tokens.getPropertyValue('--surface').trim(),
-        line: tokens.getPropertyValue('--line').trim(),
+        accent,
+        surface: mix(tokens.getPropertyValue('--surface').trim(), accent, 0.12),
+        line: mix(tokens.getPropertyValue('--line').trim(), accent, 0.42),
       };
       pillWidth = elements.pill.offsetWidth;
       pillHeight = elements.pill.offsetHeight;
