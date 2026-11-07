@@ -12,7 +12,7 @@ document.addEventListener('click', async (event) => {
   button.classList.remove('copied', 'copy-failed');
 
   try {
-    await navigator.clipboard.writeText(value);
+    await copyText(value, button);
     if (feedback) feedback.textContent = 'Zkopírováno';
     button.classList.add('copied');
   } catch {
@@ -27,3 +27,33 @@ document.addEventListener('click', async (event) => {
     if (feedback) feedback.textContent = '';
   }, 2200));
 });
+
+// Některé prohlížeče nechají žádost o schránku čekat na oprávnění bez výsledku.
+async function copyText(value: string, button: HTMLButtonElement) {
+  let timeout: number | undefined;
+  try {
+    await Promise.race([
+      navigator.clipboard.writeText(value),
+      new Promise<never>((_, reject) => {
+        timeout = window.setTimeout(() => reject(new Error('Clipboard permission pending')), 800);
+      }),
+    ]);
+  } catch {
+    const field = document.createElement('textarea');
+    field.value = value;
+    field.readOnly = true;
+    field.setAttribute('aria-hidden', 'true');
+    field.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;font-size:16px';
+    document.body.append(field);
+    try {
+      field.select();
+      field.setSelectionRange(0, value.length);
+      if (!document.execCommand('copy')) throw new Error('Clipboard unavailable');
+    } finally {
+      field.remove();
+      button.focus({ preventScroll: true });
+    }
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}

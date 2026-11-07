@@ -56,8 +56,8 @@ function initializeStory(story: HTMLElement) {
       const accent = tokens.getPropertyValue('--accent').trim();
       colors = {
         accent,
-        surface: mix(tokens.getPropertyValue('--surface').trim(), accent, 0.16),
-        line: mix(tokens.getPropertyValue('--line').trim(), accent, 0.45),
+        surface: mix(tokens.getPropertyValue('--surface').trim(), accent, 0.03),
+        line: mix(tokens.getPropertyValue('--line').trim(), accent, 0.12),
       };
       pillWidth = elements.pill.offsetWidth;
       pillHeight = elements.pill.offsetHeight;
