@@ -1,0 +1,102 @@
+---
+// Mapa se vykreslí už při buildu do čistého SVG – v prohlížeči neběží žádná knihovna.
+import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo';
+import { feature } from 'topojson-client';
+import type { Topology, GeometryCollection } from 'topojson-specification';
+import type { Feature, Geometry } from 'geojson';
+import world from 'world-atlas/countries-110m.json';
+import travels from '../data/travels.json';
+
+const W = 960;
+const H = 500;
+
+const topo = world as unknown as Topology<{ countries: GeometryCollection<{ name: string }> }>;
+const countries = (feature(topo, topo.objects.countries) as unknown as {
+  features: Feature<Geometry, { name: string }>[];
+}).features.filter((f) => f.properties.name !== 'Antarctica');
+
+const projection = geoNaturalEarth1().fitExtent(
+  [
+    [6, 6],
+    [W - 6, H - 6],
+  ],
+  { type: 'FeatureCollection', features: countries },
+);
+const path = geoPath(projection).digits(1);
+
+const visited = new Map(travels.countries.map((c) => [c.id, c]));
+const places = travels.places
+  .map((p) => ({ ...p, xy: projection([p.lon, p.lat]) }))
+  .filter((p) => p.xy);
+---
+
+<figure class="map">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Mapa světa, navštívené země: ${visited.size}`}>
+    <path class="graticule" d={path(geoGraticule10())} />
+    {
+      countries.map((c) => {
+        const v = visited.get(String(c.id));
+        return (
+          <path class:list={['country', { visited: v }]} d={path(c)}>
+            <title>{v ? `${v.name} ✓` : c.properties.name}</title>
+          </path>
+        );
+      })
+    }
+    {
+      places.map((p) => (
+        <g class="pin" transform={`translate(${p.xy![0]},${p.xy![1]})`}>
+          <circle r="6" class="halo" />
+          <circle r="2.6" />
+          <title>{[p.name, p.year, p.note].filter(Boolean).join(' · ')}</title>
+        </g>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  .map {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    padding: 12px;
+    overflow: hidden;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .graticule {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 0.5;
+  }
+  .country {
+    fill: var(--map-land);
+    stroke: var(--map-stroke);
+    stroke-width: 0.5;
+    transition: fill 0.15s;
+  }
+  .country:hover {
+    fill: var(--muted);
+  }
+  .country.visited {
+    fill: var(--map-visited);
+  }
+  .country.visited:hover {
+    fill: var(--text);
+  }
+  .pin circle {
+    fill: var(--text);
+    stroke: var(--surface);
+    stroke-width: 1;
+  }
+  .pin .halo {
+    fill: var(--text);
+    opacity: 0.15;
+    stroke: none;
+  }
+</style>

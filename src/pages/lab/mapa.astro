@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import WorldMap from '../../components/WorldMap.astro';
+import travels from '../../data/travels.json';
+
+// 193 členů OSN + Vatikán a Palestina
+const TOTAL = 195;
+const count = travels.countries.length;
+const pct = ((count / TOTAL) * 100).toFixed(1).replace('.', ',');
+const sorted = [...travels.countries].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+---
+
+<Base title="Mapa cest" description="Mapa světa s místy, kde už jsem byl." wide>
+  <div class="intro">
+    <p class="label"><a href="/lab">Lab</a> / mapa</p>
+    <h1>Kde všude jsem byl</h1>
+    <p class="muted">Obarvené země jsem navštívil, tečky jsou konkrétní místa. Najetím myší zjistíš víc.</p>
+  </div>
+
+  <dl class="stats">
+    <div><dt class="label">Zemí</dt><dd>{count}</dd></div>
+    <div><dt class="label">Ze světa</dt><dd>{pct} %</dd></div>
+    <div><dt class="label">Míst</dt><dd>{travels.places.length}</dd></div>
+  </dl>
+
+  <WorldMap />
+
+  <h2>Seznam</h2>
+  <ul class="tags">
+    {sorted.map((c) => <li>{c.name}</li>)}
+  </ul>
+</Base>
+
+<style>
+  .intro {
+    max-width: 640px;
+  }
+  .stats {
+    display: flex;
+    gap: 32px;
+    margin: 24px 0;
+  }
+  .stats dd {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .label a {
+    text-decoration: none;
+  }
+</style>

@@ -1,0 +1,120 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Doplň roky nástupu/začátku studia a případně další položky.
+const experience = [
+  {
+    role: 'Vývojář & junior projektový manažer',
+    company: 'Railsformers',
+    href: 'https://railsformers.com',
+    period: 'současnost',
+    points: [
+      'Frontend, postupně i backend, s AI-first přístupem (Claude Code, agenti, MCP).',
+      'Stavba webů ve WordPressu a Bricks přes Bricks MCP, 1:1 podle návrhů ve Figmě.',
+      'Řízení menších projektů a komunikace s klienty, SEO a technická údržba webů.',
+    ],
+  },
+];
+
+const education = [
+  {
+    school: 'VŠB – Technická univerzita Ostrava, Ekonomická fakulta',
+    field: 'Ekonomie',
+    period: 'studium probíhá',
+  },
+];
+
+const skills = {
+  'AI & nástroje': ['Claude Code', 'MCP', 'AI agenti', 'Prompting', 'Automatizace'],
+  Web: ['JavaScript / TypeScript', 'HTML & CSS', 'Astro', 'WordPress', 'Bricks Builder'],
+  Ostatní: ['Git', 'Figma', 'SEO', 'Projektové řízení'],
+};
+---
+
+<Base title="CV" description="Životopis Mariusze Suchánka – zkušenosti, vzdělání a dovednosti.">
+  <p class="label">Životopis</p>
+  <h1>CV</h1>
+  <p class="muted">
+    20 let. Vývojář, který staví s AI, a junior PM. Kontakt: <a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a>
+  </p>
+
+  <h2>Zkušenosti</h2>
+  {
+    experience.map((e) => (
+      <article class="item">
+        <div class="item-head">
+          <h3>
+            {e.role} · <a href={e.href}>{e.company}</a>
+          </h3>
+          <span class="label">{e.period}</span>
+        </div>
+        <ul>
+          {e.points.map((p) => (
+            <li>{p}</li>
+          ))}
+        </ul>
+      </article>
+    ))
+  }
+
+  <h2>Vzdělání</h2>
+  {
+    education.map((e) => (
+      <article class="item">
+        <div class="item-head">
+          <h3>{e.school}</h3>
+          <span class="label">{e.period}</span>
+        </div>
+        <p class="muted">{e.field}</p>
+      </article>
+    ))
+  }
+
+  <h2>Dovednosti</h2>
+  <div class="skills">
+    {
+      Object.entries(skills).map(([group, items]) => (
+        <div>
+          <p class="label">{group}</p>
+          <ul class="tags">
+            {items.map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .item {
+    padding: 4px 0 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .item:last-of-type {
+    border-bottom: 0;
+  }
+  .item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+  .item ul {
+    padding-left: 1.1em;
+    margin: 0.4em 0 0;
+  }
+  .item li {
+    margin-bottom: 0.3em;
+  }
+  .skills {
+    display: grid;
+    gap: 18px;
+  }
+  .skills .label {
+    margin-bottom: 8px;
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { publishedProjects } from '../../data/projects';
+
+const lab = publishedProjects.filter((p) => p.kind === 'lab');
+---
+
+<Base title="Lab" description="Experimenty, vibecoded projekty a hrátky.">
+  <p class="label">Lab</p>
+  <h1>Hrátky a experimenty</h1>
+  <p class="muted">Věci, které si stavím pro radost nebo abych si něco vyzkoušel. Nic tu nemusí být hotové.</p>
+
+  <div class="grid" style="margin-top: 32px">
+    {lab.map((p) => <ProjectCard project={p} />)}
+  </div>
+</Base>

@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { publishedProjects } from '../data/projects';
+---
+
+<Base>
+  <section class="hero">
+    <p class="label">Ahoj, jsem</p>
+    <h1>Mariusz Suchánek<span class="accent">.</span></h1>
+    <p class="lead">
+      Vývojář a junior projektový manažer v <a href="https://railsformers.com">Railsformers</a>. Dělám
+      frontend, postupně i backend, a všechno stavím <strong>AI-first</strong>: weby ve WordPressu přes
+      Bricks MCP, nástroje s Claude Code a automatizace, které šetří čas.
+    </p>
+    <p class="muted">
+      Vedle toho studuju ekonomii na VŠB-TUO. Tady si skládám portfolio, CV a věci, které si postavím
+      jen tak pro radost.
+    </p>
+    <div class="cta">
+      <a href="/projekty" class="btn">Projekty</a>
+      <a href="/cv" class="btn ghost">CV</a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Poslední věci</h2>
+    <div class="grid">
+      {publishedProjects.slice(0, 4).map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+
+  <section>
+    <h2>Co mě baví</h2>
+    <ul class="list">
+      <li><strong>AI ve vývoji:</strong> agenti, MCP, jak z jednoho člověka udělat malý tým.</li>
+      <li><strong>Weby:</strong> rychle, čistě a bez zbytečné složitosti.</li>
+      <li><strong>Automatizace:</strong> procesy, které se dají přestat dělat ručně.</li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding: 24px 0 8px;
+  }
+  .lead {
+    font-size: 1.15rem;
+    max-width: 60ch;
+  }
+  .cta {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: var(--text);
+    color: var(--bg);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid var(--text);
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn.ghost {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--line);
+  }
+  .btn.ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: transparent;
+  }
+  .list {
+    padding-left: 1.1em;
+  }
+  .list li {
+    margin-bottom: 0.4em;
+  }
+</style>

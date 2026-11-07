@@ -1,0 +1,155 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  wide?: boolean;
+}
+
+const {
+  title,
+  description = 'Mariusz Suchánek – vývojář a junior projektový manažer. AI-first vývoj, weby a automatizace.',
+  wide = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} · Mariusz Suchánek` : 'Mariusz Suchánek';
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const nav = [
+  { href: '/', label: 'Úvod' },
+  { href: '/projekty', label: 'Projekty' },
+  { href: '/lab', label: 'Lab' },
+  { href: '/cv', label: 'CV' },
+];
+
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class={wide ? 'wrap-wide' : 'wrap'}>
+        <a href="/" class="logo">suchanek<span class="accent">.</span>dev</a>
+        <nav>
+          {
+            nav.map((item) => (
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main class={wide ? 'wrap-wide' : 'wrap'}>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class={wide ? 'wrap-wide' : 'wrap'}>
+        <span>© {new Date().getFullYear()} Mariusz Suchánek</span>
+        <span class="links">
+          <a href="mailto:ahoj@suchanek.dev">ahoj@suchanek.dev</a>
+          <a href="https://github.com/suchyyy86" rel="me">GitHub</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  nav {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  nav a {
+    text-decoration: none;
+    font-size: 0.93rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    color: var(--muted);
+    transition: color 0.15s, background 0.15s;
+  }
+
+  nav a:hover {
+    color: var(--text);
+  }
+
+  nav a[aria-current='page'] {
+    color: var(--text);
+    background: var(--line);
+  }
+
+  main {
+    padding-top: 32px;
+    padding-bottom: 80px;
+    min-height: 70vh;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--line);
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .site-footer > div {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    padding-top: 24px;
+    padding-bottom: 32px;
+  }
+
+  .links {
+    display: flex;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .site-header > div {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    nav {
+      margin-left: -10px;
+    }
+  }
+</style>
