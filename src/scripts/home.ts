@@ -94,7 +94,7 @@ function initializeStory(story: HTMLElement) {
           scene.inert = index !== currentScene;
         });
         activeScene = currentScene;
-        if (scrollLabel) scrollLabel.textContent = ['Posuň se dál', 'Pokračuj', 'Kontakt'][currentScene];
+        if (scrollLabel) scrollLabel.textContent = ['Zvědavý?', 'Zvědavost tě posune dál.', 'Kontakt'][currentScene];
       }
       elements.pill.inert = p < 0.975;
 
@@ -157,7 +157,7 @@ function initializeStory(story: HTMLElement) {
         scene.removeAttribute('aria-hidden');
       });
       elements.pill.inert = false;
-      if (scrollLabel) scrollLabel.textContent = 'Posuň se dál';
+      if (scrollLabel) scrollLabel.textContent = 'Zvědavý?';
     };
   });
 
