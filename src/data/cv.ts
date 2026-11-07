@@ -1,6 +1,6 @@
 // Obsah životopisu – doslova podle PDF (Mariusz_Suchanek_CV.pdf).
 // Texty nepřepisuj ani nedoplňuj vlastními slovy. Jediná odchylka od PDF je kontakt:
-// místo Ostrava (bez Českého Těšína), e-mail na doméně a bez telefonu.
+// místo Ostrava (bez Českého Těšína), e-mail na doméně, LinkedIn jako odkaz a bez telefonu.
 
 export const name = 'Mariusz Suchanek';
 
@@ -48,7 +48,7 @@ export const education = [
 
 export const contact = {
   location: 'Ostrava',
-  linkedinLabel: 'linkedin.com/in/mariusz-suchanek-9263a12a2',
+  linkedinLabel: 'LinkedIn',
 };
 
 export const skills = [
