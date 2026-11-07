@@ -5,19 +5,18 @@ import { site } from '../data/site';
 import { cz } from '../utils/cz';
 ---
 
-<Base title="CV" description="Životopis Mariusze Suchanka – vývojář webových aplikací a juniorní projektový manažer.">
+<Base title="CV" description={profile}>
   <header class="page-head">
     <h1 class="page-title enter">CV</h1>
     <p class="lead enter" style="--i: 1">{cz(site.role)}.</p>
-    <p class="muted profile enter" style="--i: 2">{cz(profile)}</p>
-    <ul class="facts enter" style="--i: 3">
+    <ul class="facts enter" style="--i: 2">
       <li>{site.location}</li>
       <li><a class="link" href={`mailto:${site.email}`}>{site.email}</a></li>
       <li><a class="link" href={site.linkedin} target="_blank" rel="me noopener">LinkedIn</a></li>
     </ul>
   </header>
 
-  <section class="section enter" style="--i: 4">
+  <section class="section enter" style="--i: 3">
     <h2 class="section-title">Pracovní zkušenosti</h2>
     <ol class="timeline">
       {
@@ -47,7 +46,7 @@ import { cz } from '../utils/cz';
     </ol>
   </section>
 
-  <section class="section enter" style="--i: 5">
+  <section class="section enter" style="--i: 4">
     <h2 class="section-title">Vzdělání</h2>
     <ol class="timeline">
       {
@@ -102,11 +101,6 @@ import { cz } from '../utils/cz';
 
   .page-title {
     margin-bottom: 16px;
-  }
-
-  .profile {
-    margin-top: 12px;
-    max-width: 56ch;
   }
 
   .facts {

@@ -1,5 +1,6 @@
-// Obsah životopisu – používá ho /cv i sekce Zkušenosti na úvodu.
+// Obsah životopisu pro /cv.
 
+// Shrnutí se na stránce nezobrazuje, slouží jako popis pro vyhledávače.
 export const profile =
   'Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji technický vývoj, AI nástroje a komunikaci s klienty. Studuji ekonomii na VŠB-TUO.';
 

@@ -33,9 +33,7 @@ const { projects } = Astro.props;
               </span>
               <span class="row-desc">{cz(p.description)}</span>
             </span>
-            <span class="row-meta">
-              {p.kind} · {p.year}
-            </span>
+            <span class="row-meta">{p.year}</span>
           </Tag>
         </li>
       );

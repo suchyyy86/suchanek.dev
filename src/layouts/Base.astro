@@ -79,9 +79,6 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       <div class:list={['wrap', 'footer-inner', { wide }]}>
         <span>© {new Date().getFullYear()} {site.name}</span>
         <span class="footer-links">
-          <span class="clock" title="Místní čas">
-            <span class="clock-dot" aria-hidden="true"></span>Český Těšín <time data-clock></time>
-          </span>
           <a class="link" href={site.linkedin} rel="me noopener" target="_blank">LinkedIn</a>
           <a class="link" href={site.github} rel="me noopener" target="_blank">GitHub</a>
         </span>
@@ -190,21 +187,6 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
   .footer-links a {
     color: var(--text-2);
-  }
-
-  .clock {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .clock-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 18%, transparent);
   }
 
   @media (max-width: 560px) {

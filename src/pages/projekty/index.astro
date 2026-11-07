@@ -7,12 +7,9 @@ import { publishedProjects } from '../../data/projects';
 <Base title="Projekty" description="Projekty Mariusze Suchanka – práce, škola i vlastní experimenty.">
   <header class="page-head">
     <h1 class="page-title enter">Projekty</h1>
-    <p class="lead enter" style="--i: 1">
-      Na čem pracuju v&nbsp;práci, co jsem dělal ve škole a&nbsp;co si stavím jen tak. Postupně přibývá.
-    </p>
   </header>
 
-  <div class="list enter" style="--i: 2">
+  <div class="list enter" style="--i: 1">
     <ProjectList projects={publishedProjects} />
   </div>
 </Base>
@@ -22,11 +19,7 @@ import { publishedProjects } from '../../data/projects';
     padding-top: 24px;
   }
 
-  .page-title {
-    margin-bottom: 16px;
-  }
-
   .list {
-    margin-top: 56px;
+    margin-top: 48px;
   }
 </style>

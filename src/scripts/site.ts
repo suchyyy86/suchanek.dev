@@ -1,22 +1,5 @@
 // Skripty společné pro celý web. Běží jednou, s ClientRouterem přežívají navigaci.
 
-// Místní čas v patičce
-const timeFormat = new Intl.DateTimeFormat('cs-CZ', {
-  timeZone: 'Europe/Prague',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
-function tick() {
-  const now = timeFormat.format(new Date());
-  document.querySelectorAll<HTMLElement>('[data-clock]').forEach((el) => {
-    if (el.textContent !== now) el.textContent = now;
-  });
-}
-
-setInterval(tick, 10_000);
-document.addEventListener('astro:page-load', tick);
-
 // Kopírování e-mailu
 let copyTimer: number | undefined;
 

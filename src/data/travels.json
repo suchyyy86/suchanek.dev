@@ -3,7 +3,6 @@
     { "code": "CZ", "note": "Doma" }
   ],
   "places": [
-    { "name": "Český Těšín", "lat": 49.7461, "lon": 18.6261, "note": "Doma" },
     { "name": "Ostrava", "lat": 49.8209, "lon": 18.2625, "note": "VŠB" }
   ]
 }
