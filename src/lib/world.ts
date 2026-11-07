@@ -1,6 +1,7 @@
 // Geodata pro mapu cest. Počítá se jednou při buildu, do prohlížeče nejde nic z toho.
 import { feature } from 'topojson-client';
 import { presimplify, simplify, quantile } from 'topojson-simplify';
+import { geoArea, geoCentroid, geoDistance } from 'd3-geo';
 import countries from 'i18n-iso-countries';
 import cs from 'i18n-iso-countries/langs/cs.json';
 import world from 'world-atlas/countries-50m.json';
@@ -50,6 +51,30 @@ const UNCODED: Record<string, { code: string | null; name: string }> = {
 export function nameForCode(code: string): string {
   const upper = code.toUpperCase();
   return NAME_OVERRIDES[upper] ?? countries.getName(upper, 'cs') ?? upper;
+}
+
+// Zámořská území (Francie → Guyana, Réunion, Karibik…) nechceme barvit jako navštívená.
+// Hlavní část = největší polygon a vše do ~2 900 km od něj; zbytek se vrátí zvlášť.
+const OVERSEAS_DISTANCE = 0.45; // radiány na zeměkouli
+
+type CountryFeature = Feature<Geometry, Props>;
+
+export function splitOverseas(f: CountryFeature): { main: CountryFeature; overseas: CountryFeature | null } {
+  if (f.geometry.type !== 'MultiPolygon') return { main: f, overseas: null };
+  const polygons = f.geometry.coordinates;
+  const areas = polygons.map((p) => geoArea({ type: 'Polygon', coordinates: p }));
+  const center = geoCentroid({ type: 'Polygon', coordinates: polygons[areas.indexOf(Math.max(...areas))] });
+  const near: typeof polygons = [];
+  const far: typeof polygons = [];
+  for (const p of polygons) {
+    const distance = geoDistance(center, geoCentroid({ type: 'Polygon', coordinates: p }));
+    (distance <= OVERSEAS_DISTANCE ? near : far).push(p);
+  }
+  const withPolygons = (coordinates: typeof polygons): CountryFeature => ({
+    ...f,
+    geometry: { type: 'MultiPolygon', coordinates },
+  });
+  return { main: withPolygons(near), overseas: far.length ? withPolygons(far) : null };
 }
 
 export function countryInfo(f: Feature<Geometry, Props>): { code: string | null; name: string } {

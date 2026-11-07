@@ -126,29 +126,18 @@ const floors = Array.from({ length: FLOORS }, (_, i) => FLOORS - 1 - i); // kres
 
 <style>
   .art {
-    --art-bg: #f3f3f1;
-    --slab-top: #ffffff;
-    --slab-r: #e9e9e6;
-    --slab-l: #dfdfdb;
-    --slab-line: rgb(0 0 0 / 0.13);
-    --route: #16a34a;
+    --art-bg: #0e0e0e;
+    --slab-top: #1b1b1b;
+    --slab-r: #151515;
+    --slab-l: #111111;
+    --slab-line: rgb(255 255 255 / 0.1);
+    --route: #22c55e;
 
     margin: 0;
     padding: 40px 24px;
     border: 1px solid var(--line);
     border-radius: 18px;
     background: var(--art-bg);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .art {
-      --art-bg: #0e0e0e;
-      --slab-top: #1b1b1b;
-      --slab-r: #151515;
-      --slab-l: #111111;
-      --slab-line: rgb(255 255 255 / 0.1);
-      --route: #22c55e;
-    }
   }
 
   svg {

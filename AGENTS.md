@@ -30,7 +30,7 @@ Při spouštění dev serveru agentem použij `astro dev --background` (správa:
 - **Minimalismus a málo textu.** Jedna akcentová barva (`--accent`), hodně vzduchu, žádné dekorace
   navíc. V seznamech jednořádkové popisy; delší text patří jen na detail projektu.
 - **Pracovní projekty popisuj obecně**: bez jmen klientů, interních adres a detailů zabezpečení.
-- **Barvy jen přes tokeny** v `:root` (světlý i tmavý režim podle systému).
+- **Jen tmavý motiv**, nezávisle na nastavení systému. Barvy výhradně přes tokeny v `:root`.
 - **Animace:**
   - `.enter` + `style="--i: N"` – nástup při načtení, N určuje pořadí.
   - `.scroll-in` – nástup při scrollu (čisté CSS, scroll-driven animations).
@@ -43,7 +43,8 @@ Při spouštění dev serveru agentem použij `astro dev --background` (správa:
 - **Pozor na mezery v šablonách:** Astro zahodí mezeru na začátku řádku hned za uzavíracím tagem
   (`</a>` + nový řádek + text → slepené slovo). Použij `{' '}` nebo text na stejném řádku.
 - Mapa se generuje při buildu (`src/lib/world.ts`, d3-geo + world-atlas 50m zjednodušená). Do prohlížeče
-  nejde žádná mapová knihovna.
+  nejde žádná mapová knihovna. U navštívených zemí se zámořská území (Francouzská Guyana, Réunion…)
+  nebarví – `splitOverseas()`. Ostatní země se barví celé tak, jak jsou v datech.
 
 ## Dokumentace
 

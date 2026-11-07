@@ -2,19 +2,20 @@
    Tokeny
    ========================================================================== */
 
+/* Web má jen tmavý motiv, nezávisle na nastavení systému. */
 :root {
-  --bg: #fbfbfa;
-  --surface: #ffffff;
-  --text: #111111;
-  --text-2: #555555;
-  --text-3: #737373;
-  --line: #e9e9e7;
-  --hover: #f2f2f0;
-  --accent: #ff5a36;
-  --map-land: #e6e6e3;
-  --map-land-hover: #d3d3cf;
-  --map-border: #fbfbfa;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 20px -6px rgb(0 0 0 / 0.06);
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --text: #ededed;
+  --text-2: #a3a3a3;
+  --text-3: #7c7c7c;
+  --line: #202020;
+  --hover: #1a1a1a;
+  --accent: #ff6a45;
+  --map-land: #1f1f1f;
+  --map-land-hover: #2f2f2f;
+  --map-border: #0a0a0a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.6);
 
   --sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -26,24 +27,7 @@
   --w-wide: 1040px;
   --gutter: 20px;
 
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --text: #ededed;
-    --text-2: #a3a3a3;
-    --text-3: #7c7c7c;
-    --line: #202020;
-    --hover: #1a1a1a;
-    --accent: #ff6a45;
-    --map-land: #1f1f1f;
-    --map-land-hover: #2f2f2f;
-    --map-border: #0a0a0a;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.6);
-  }
+  color-scheme: dark;
 }
 
 /* ==========================================================================

@@ -2,7 +2,7 @@
 // Mapa se vykreslí při buildu do čistého SVG. V prohlížeči běží jen pár řádků
 // na přepínání výřezu a tooltip – žádná mapová knihovna.
 import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo';
-import { countryFeatures, countryInfo } from '../lib/world';
+import { countryFeatures, countryInfo, splitOverseas } from '../lib/world';
 import travels from '../data/travels.json';
 
 const W = 960;
@@ -20,19 +20,28 @@ const path = geoPath(projection).digits(1);
 const visited = new Map(travels.countries.map((c) => [c.code.toUpperCase(), c]));
 let visitedIndex = 0;
 
-const shapes = countryFeatures.map((f) => {
+// Navštívené země kreslíme až nakonec, ať jejich obrys nepřekrývají sousedé.
+const LAYER = { land: 0, visited: 1 };
+
+const shapes = countryFeatures.flatMap((f) => {
   const info = countryInfo(f);
   const v = info.code ? visited.get(info.code) : undefined;
-  return {
-    d: path(f) ?? '',
-    visited: Boolean(v),
-    index: v ? visitedIndex++ : 0,
-    tip: v ? [info.name, v.note || 'navštíveno'].join(' · ') : info.name,
-  };
+  if (!v) return [{ d: path(f) ?? '', visited: false, index: 0, tip: info.name, layer: LAYER.land }];
+  const { main, overseas } = splitOverseas(f);
+  const out = [
+    {
+      d: path(main) ?? '',
+      visited: true,
+      index: visitedIndex++,
+      tip: [info.name, v.note || 'navštíveno'].join(' · '),
+      layer: LAYER.visited,
+    },
+  ];
+  if (overseas) out.push({ d: path(overseas) ?? '', visited: false, index: 0, tip: info.name, layer: LAYER.land });
+  return out;
 });
 
-// Navštívené země kreslíme až nakonec, ať jejich obrys nepřekrývají sousedé.
-shapes.sort((a, b) => Number(a.visited) - Number(b.visited));
+shapes.sort((a, b) => a.layer - b.layer);
 
 // Výřez obdélníku zeměpisných souřadnic, dorovnaný na poměr stran mapy
 function view(lon0: number, lat0: number, lon1: number, lat1: number, pad = 0.04) {
@@ -52,7 +61,8 @@ function view(lon0: number, lat0: number, lon1: number, lat1: number, pad = 0.04
 
 const views = {
   svet: [0, 0, W, H],
-  evropa: view(-12, 35, 38, 70),
+  // Evropa i se severní Afrikou (Maroko) a západem Turecka
+  evropa: view(-13, 27, 40, 70),
 };
 
 const places = travels.places
