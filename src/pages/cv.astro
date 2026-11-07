@@ -1,94 +1,93 @@
 ---
 import Base from '../layouts/Base.astro';
-import { profile, experience, education, skills, languages, certificates } from '../data/cv';
+import {
+  name,
+  headline,
+  profile,
+  experience,
+  education,
+  contact,
+  skills,
+  languages,
+  certificates,
+} from '../data/cv';
 import { site } from '../data/site';
 import { cz } from '../utils/cz';
 ---
 
 <Base title="CV" description={profile}>
   <header class="page-head">
-    <h1 class="page-title enter">CV</h1>
-    <p class="lead enter" style="--i: 1">{cz(site.role)}.</p>
-    <ul class="facts enter" style="--i: 2">
-      <li>{site.location}</li>
-      <li><a class="link" href={`mailto:${site.email}`}>{site.email}</a></li>
-      <li><a class="link" href={site.linkedin} target="_blank" rel="me noopener">LinkedIn</a></li>
-    </ul>
+    <h1 class="page-title enter">{name}</h1>
+    <p class="headline enter" style="--i: 1">
+      {headline[0]} <span class="sep">|</span> {headline[1]}
+    </p>
   </header>
+
+  <section class="section enter" style="--i: 2">
+    <h2 class="section-title">Profil</h2>
+    <p class="body">{cz(profile)}</p>
+  </section>
 
   <section class="section enter" style="--i: 3">
     <h2 class="section-title">Pracovní zkušenosti</h2>
-    <ol class="timeline">
-      {
-        experience.map((e) => (
-          <li class="t-item scroll-in">
-            <span class="t-when">{e.period}</span>
-            <div>
-              <h3 class="t-title">
-                {e.href ? (
-                  <a class="link" href={e.href} target="_blank" rel="noopener">
-                    {e.company}
-                  </a>
-                ) : (
-                  e.company
-                )}
-              </h3>
-              <p class="t-sub">{e.role}</p>
-              <ul class="t-points">
-                {e.points.map((p) => (
-                  <li>{cz(p)}</li>
-                ))}
-              </ul>
-            </div>
-          </li>
-        ))
-      }
-    </ol>
-  </section>
-
-  <section class="section enter" style="--i: 4">
-    <h2 class="section-title">Vzdělání</h2>
-    <ol class="timeline">
-      {
-        education.map((e) => (
-          <li class="t-item scroll-in">
-            <span class="t-when">{e.period}</span>
-            <div>
-              <h3 class="t-title">{e.school}</h3>
-              <p class="t-sub">{e.field}</p>
-            </div>
-          </li>
-        ))
-      }
-    </ol>
+    {
+      experience.map((e) => (
+        <article class="entry scroll-in">
+          <h3 class="entry-title">{e.company}</h3>
+          <p class="entry-sub">{e.role}</p>
+          <p class="entry-date">{e.period}</p>
+          <ul class="entry-points">
+            {e.points.map((p) => (
+              <li>{cz(p)}</li>
+            ))}
+          </ul>
+        </article>
+      ))
+    }
   </section>
 
   <section class="section scroll-in">
-    <h2 class="section-title">Dovednosti</h2>
-    <ul class="chips skills">
-      {skills.map((s) => <li>{s}</li>)}
-    </ul>
+    <h2 class="section-title">Vzdělání</h2>
+    {
+      education.map((e) => (
+        <article class="entry">
+          <h3 class="entry-title">{e.school}</h3>
+          <p class="entry-sub">{e.detail}</p>
+        </article>
+      ))
+    }
   </section>
 
-  <div class="cols">
-    <section class="section scroll-in">
-      <h2 class="section-title">Jazyky</h2>
-      <ul class="kv">
-        {
-          languages.map((l) => (
-            <li>
-              <span>{l.name}</span>
-              <span class="faint">{l.level}</span>
-            </li>
-          ))
-        }
+  <div class="side">
+    <section class="scroll-in">
+      <h2 class="section-title">Kontakt</h2>
+      <ul class="plain">
+        <li>{contact.location}</li>
+        <li><a class="link" href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li>
+          <a class="link" href={site.linkedin} target="_blank" rel="me noopener">{contact.linkedinLabel}</a>
+        </li>
       </ul>
     </section>
 
-    <section class="section scroll-in">
+    <section class="scroll-in">
+      <h2 class="section-title">Dovednosti</h2>
+      <ul class="plain">
+        {skills.map((s) => <li>{s}</li>)}
+      </ul>
+    </section>
+
+    <section class="scroll-in">
+      <h2 class="section-title">Jazyky</h2>
+      <ul class="plain">
+        {languages.map((l) => <li>{l}</li>)}
+      </ul>
+    </section>
+
+    <section class="scroll-in">
       <h2 class="section-title">Certifikace</h2>
-      <ul class="kv">
-        {certificates.map((c) => <li><span>{c}</span></li>)}
+      <ul class="plain">
+        {certificates.map((c) => <li>{c}</li>)}
       </ul>
     </section>
   </div>
@@ -100,59 +99,59 @@ import { cz } from '../utils/cz';
   }
 
   .page-title {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
-  .facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 22px;
-    margin: 24px 0 0;
-    padding: 0;
-    list-style: none;
+  .headline {
+    font-size: 1.0625rem;
+    color: var(--text-2);
+  }
+
+  .sep {
+    margin: 0 0.2em;
+    color: var(--text-3);
+  }
+
+  .section {
+    margin-top: 72px;
+  }
+
+  .body {
+    margin-top: 14px;
+    max-width: 60ch;
+    color: var(--text-2);
+  }
+
+  .entry {
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .entry:first-of-type {
+    border-top: 0;
+    padding-top: 12px;
+  }
+
+  .entry-title {
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .entry-sub {
+    margin-top: 2px;
     font-size: 0.9375rem;
     color: var(--text-2);
   }
 
-  .timeline {
-    list-style: none;
-    margin: 6px 0 0;
-    padding: 0;
-  }
-
-  .t-item {
-    display: grid;
-    grid-template-columns: 9rem minmax(0, 1fr);
-    gap: 4px 24px;
-    padding: 22px 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .t-item:first-child {
-    border-top: 0;
-    padding-top: 10px;
-  }
-
-  .t-when {
-    padding-top: 3px;
+  .entry-date {
+    margin-top: 2px;
     font-family: var(--mono);
     font-size: 0.75rem;
     color: var(--text-3);
     font-variant-numeric: tabular-nums;
   }
 
-  .t-title {
-    font-size: 1rem;
-    letter-spacing: -0.01em;
-  }
-
-  .t-sub {
-    margin-top: 2px;
-    font-size: 0.9375rem;
-    color: var(--text-2);
-  }
-
-  .t-points {
+  .entry-points {
     margin: 12px 0 0;
     padding: 0;
     list-style: none;
@@ -160,58 +159,52 @@ import { cz } from '../utils/cz';
     color: var(--text-2);
   }
 
-  .t-points li {
+  .entry-points li {
     position: relative;
     margin-top: 6px;
-    padding-left: 18px;
+    padding-left: 16px;
   }
 
-  .t-points li::before {
+  .entry-points li::before {
     content: '';
     position: absolute;
-    left: 2px;
-    top: 0.78em;
-    width: 7px;
-    height: 1px;
+    left: 3px;
+    top: 0.7em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
     background: var(--text-3);
   }
 
-  .skills {
-    margin-top: 16px;
-  }
-
-  .cols {
+  .side {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0 40px;
+    gap: 64px 40px;
+    margin-top: 72px;
   }
 
-  .kv {
+  .plain {
     list-style: none;
-    margin: 10px 0 0;
+    margin: 12px 0 0;
     padding: 0;
     font-size: 0.9375rem;
   }
 
-  .kv li {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 10px 0;
+  .plain li {
+    padding: 9px 0;
     border-top: 1px solid var(--line);
+    overflow-wrap: anywhere;
   }
 
-  .kv li:first-child {
+  .plain li:first-child {
     border-top: 0;
+    padding-top: 4px;
   }
 
   @media (max-width: 560px) {
-    .t-item {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .cols {
+    .side {
       grid-template-columns: 1fr;
+      gap: 56px;
     }
   }
 </style>

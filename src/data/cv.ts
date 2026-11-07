@@ -1,15 +1,19 @@
-// Obsah životopisu pro /cv.
+// Obsah životopisu – doslova podle PDF (Mariusz_Suchanek_CV.pdf).
+// Texty nepřepisuj ani nedoplňuj vlastními slovy. Jediná odchylka od PDF je kontakt:
+// místo Ostrava (bez Českého Těšína), e-mail na doméně a bez telefonu.
 
-// Shrnutí se na stránce nezobrazuje, slouží jako popis pro vyhledávače.
+export const name = 'Mariusz Suchanek';
+
+export const headline = ['Vývojář webových aplikací', 'Juniorní projektový manažer'];
+
 export const profile =
-  'Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji technický vývoj, AI nástroje a komunikaci s klienty. Studuji ekonomii na VŠB-TUO.';
+  'Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji technický vývoj, AI nástroje a komunikaci s klienty. Studuji ekonomii na VŠB–TUO.';
 
 export const experience = [
   {
     company: 'Railsformers',
-    href: 'https://railsformers.com',
     role: 'Vývojář aplikací / juniorní projektový manažer',
-    period: '07/2025 – dnes',
+    period: '07/2025 – současnost',
     points: [
       'Frontendový vývoj 3D aplikace digitálního dvojčete budovy.',
       'Vizualizace provozních dat a údajů ze senzorů.',
@@ -34,30 +38,29 @@ export const experience = [
 export const education = [
   {
     school: 'VŠB – Technická univerzita Ostrava',
-    field: 'Ekonomická fakulta · Ekonomie',
-    period: '2025 – dnes',
+    detail: 'Ekonomická fakulta · Ekonomie · 2025 – současnost',
   },
   {
     school: 'Střední průmyslová škola Karviná',
-    field: 'Informační technologie · maturita s vyznamenáním',
-    period: '2021 – 2025',
+    detail: 'Informační technologie · 2021 – 2025 · maturita s vyznamenáním',
   },
 ];
+
+export const contact = {
+  location: 'Ostrava',
+  linkedinLabel: 'linkedin.com/in/mariusz-suchanek-9263a12a2',
+};
 
 export const skills = [
   'JavaScript, HTML, CSS',
   'Vývoj webových aplikací',
-  'Frontend a 3D aplikace',
   'WordPress',
+  'Frontend a 3D aplikace',
   'AI-driven vývoj (MCP)',
   'Vedení menších projektů',
   'Komunikace s klienty',
 ];
 
-export const languages = [
-  { name: 'Čeština', level: 'rodilý mluvčí' },
-  { name: 'Polština', level: 'rodilý mluvčí' },
-  { name: 'Angličtina', level: 'C1 (CAE)' },
-];
+export const languages = ['Čeština · rodilý mluvčí', 'Polština · rodilý mluvčí', 'Angličtina · C1 (CAE)'];
 
 export const certificates = ['Cambridge English: Advanced (CAE)', 'Řidičský průkaz skupiny B'];

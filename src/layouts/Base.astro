@@ -22,9 +22,9 @@ const fullTitle = title ? `${title} · ${site.name}` : `${site.name} – vývoj�
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
+// Projekty jsou zatím skryté (src/pages/_projekty). Až se vrátí, přidej sem { href: '/projekty', label: 'Projekty' }.
 const nav = [
   { href: '/', label: 'Úvod' },
-  { href: '/projekty', label: 'Projekty' },
   { href: '/cv', label: 'CV' },
 ];
 

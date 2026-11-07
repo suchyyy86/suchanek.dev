@@ -15,9 +15,9 @@ npm run build    # statický výstup do dist/
 | Co | Soubor |
 |---|---|
 | Kontakty | `src/data/site.ts` |
-| Projekty – `featured: true` je ukáže na úvodu, `draft: true` je skryje | `src/data/projects.ts` |
-| CV | `src/data/cv.ts` |
-| Mapa cest – navštívené země a místa | `src/data/travels.json` |
+| CV (doslova podle PDF) | `src/data/cv.ts` |
+| Projekty – zatím skryté, stránky v `src/pages/_projekty/` | `src/data/projects.ts` |
+| Mapa cest – navštívené země a místa (zatím skrytá) | `src/data/travels.json` |
 
 ### Mapa cest
 

@@ -18,12 +18,15 @@ Při spouštění dev serveru agentem použij `astro dev --background` (správa:
 | Co | Soubor |
 |---|---|
 | Kontakty, jméno, role | `src/data/site.ts` |
-| Projekty (`draft` = skryté; úvod je zatím nezobrazuje) | `src/data/projects.ts` |
-| Detail projektu | `src/pages/projekty/<slug>.astro` (vzor: `digitalni-dvojce.astro`) |
-| Životopis (CV i Zkušenosti na úvodu) | `src/data/cv.ts` |
+| Životopis – **doslova podle PDF, texty nevymýšlet ani nepřepisovat** | `src/data/cv.ts` |
+| Projekty – **zatím skryté** | `src/data/projects.ts`, stránky v `src/pages/_projekty/` |
 | Mapa cest | `src/data/travels.json` (země jako ISO kód `CZ`, místa jako `lat`/`lon`) |
 | Barvy, typografie, animace | `src/styles/global.css` |
 | Layout, menu, patička | `src/layouts/Base.astro` |
+
+Web má teď jen **Úvod** a **CV**. Projekty (včetně mapy cest a detailu Digitální dvojče budovy) jsou
+hotové, ale schované: Astro nesestavuje složky začínající podtržítkem. Zveřejnění = přejmenovat
+`src/pages/_projekty` zpět na `src/pages/projekty` a vrátit položku do `nav` v `src/layouts/Base.astro`.
 
 ## Konvence
 
