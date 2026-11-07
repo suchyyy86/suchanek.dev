@@ -4,44 +4,147 @@ import CopyEmail from '../components/CopyEmail.astro';
 ---
 
 <Base>
-  <section class="hero">
-    <h1 class="title" aria-label="Mariusz Suchanek">
-      <span class="name-word" aria-hidden="true">
-        {Array.from('Mariusz').map((letter, index) => (
-          <span class="name-letter" style={`--letter: ${index}`}>{letter}</span>
-        ))}
-      </span>{' '}<span class="name-word surname" aria-hidden="true">
-        {Array.from('Suchanek').map((letter, index) => (
-          <span class="name-letter" style={`--letter: ${index + 7}`}>{letter}</span>
-        ))}<span class="name-dot"></span>
-      </span>
-    </h1>
+  <section class="story" aria-label="O mně">
+    <div class="story-frame">
+      <div class="story-content">
+        <h1 class="title" aria-label="Mariusz Suchanek">
+          <span class="name-word" aria-hidden="true">Mariusz</span>{' '}<span class="name-word" aria-hidden="true">Suchanek<span class="dot-anchor"></span></span>
+        </h1>
 
-    <p class="lead enter" style="--i: 2">
-      Vývojář a&nbsp;juniorní projektový manažer v&nbsp;Railsformers. Stavím weby a&nbsp;aplikace
-      –&nbsp;<em class="serif">AI-first.</em>
-    </p>
-  </section>
+        <p class="lead story-line" data-reveal="0.12">
+          <span class="step-anchor" aria-hidden="true"></span>
+          Vývojář a&nbsp;juniorní projektový manažer v&nbsp;Railsformers.
+        </p>
 
-  <section class="section enter" style="--i: 3">
-    <h2 class="section-title">Kontakt</h2>
-    <div class="contact">
-      <CopyEmail />
+        <p class="lead story-line" data-reveal="0.4">
+          <span class="step-anchor" aria-hidden="true"></span>
+          Stavím weby a&nbsp;aplikace –&nbsp;<em class="serif">AI-first.</em>
+        </p>
+
+        <div class="contact" data-reveal="0.92">
+          <h2 class="section-title">Kontakt</h2>
+          <div class="contact-pill"><CopyEmail /></div>
+        </div>
+      </div>
+      <div class="travel-dot" aria-hidden="true"></div>
+      <a class="scroll-cue" href="#kontakt" aria-label="Přejít ke kontaktu">
+        <span>Posuň se dál</span><span aria-hidden="true">↓</span>
+      </a>
     </div>
+    <div id="kontakt" class="contact-destination" aria-hidden="true"></div>
   </section>
 </Base>
 
+<script>
+  const story = document.querySelector<HTMLElement>('.story');
+  const frame = document.querySelector<HTMLElement>('.story-frame');
+  const dot = document.querySelector<HTMLElement>('.travel-dot');
+  const nameAnchor = document.querySelector<HTMLElement>('.dot-anchor');
+  const steps = Array.from(document.querySelectorAll<HTMLElement>('.step-anchor'));
+  const pill = document.querySelector<HTMLElement>('.contact-pill');
+  const reveals = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+  const cue = document.querySelector<HTMLElement>('.scroll-cue');
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (story && frame && dot && nameAnchor && pill && steps.length === 2) {
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const ease = (value: number) => value * value * (3 - 2 * value);
+    let points: { x: number; y: number }[] = [];
+    let pillSize = { width: 0, height: 0 };
+    let storyTop = 0;
+    let distance = 1;
+    let pending = false;
+
+    function measure() {
+      if (!story || !frame || !nameAnchor || !pill) return;
+      const origin = frame.getBoundingClientRect();
+      points = [nameAnchor, ...steps, pill].map((element) => {
+        const rect = element.getBoundingClientRect();
+        return { x: rect.left - origin.left + rect.width / 2, y: rect.top - origin.top + rect.height / 2 };
+      });
+      const rect = pill.getBoundingClientRect();
+      pillSize = { width: rect.width, height: rect.height };
+      storyTop = story.getBoundingClientRect().top + window.scrollY;
+      distance = Math.max(1, story.offsetHeight - frame.offsetHeight);
+      render();
+    }
+
+    function render() {
+      pending = false;
+      if (!story || !dot || !nameAnchor || points.length !== 4) return;
+      const progress = clamp((window.scrollY - storyTop) / distance);
+      story.style.setProperty('--progress', String(progress));
+      for (const element of reveals) {
+        const start = Number(element.dataset.reveal);
+        const amount = ease(clamp((progress - start) / Math.min(0.16, 1 - start)));
+        element.style.setProperty('--reveal', String(amount));
+      }
+      if (cue) cue.style.opacity = String(1 - clamp(progress / 0.12));
+
+      // Tři skoky propojí jméno, obě věty a kontakt. Na konci se kruh rozšíří.
+      const stops = [0, 0.28, 0.56, 0.8];
+      let segment = 0;
+      if (progress > stops[1]) segment = 1;
+      if (progress > stops[2]) segment = 2;
+      const local = clamp((progress - stops[segment]) / (stops[segment + 1] - stops[segment]));
+      const t = ease(local);
+      const start = points[segment];
+      const end = points[segment + 1];
+      const arc = Math.sin(Math.PI * local) * Math.min(55, Math.abs(end.y - start.y) * 0.4);
+      const x = start.x + (end.x - start.x) * t;
+      const y = start.y + (end.y - start.y) * t - arc;
+      const spread = ease(clamp((progress - 0.8) / 0.16));
+      const size = nameAnchor.offsetWidth;
+      dot.style.width = `${size + (pillSize.width - size) * spread}px`;
+      dot.style.height = `${size + (pillSize.height - size) * spread}px`;
+      dot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      story.classList.toggle('contact-ready', progress >= 0.96);
+    }
+
+    function scheduleRender() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(render);
+    }
+
+    function configure() {
+      story?.classList.toggle('scroll-enabled', !motion.matches);
+      measure();
+    }
+
+    window.addEventListener('scroll', scheduleRender, { passive: true });
+    window.addEventListener('resize', measure);
+    window.addEventListener('pageshow', measure);
+    motion.addEventListener('change', configure);
+    new ResizeObserver(measure).observe(pill);
+    configure();
+    document.fonts.ready.then(measure);
+
+    // Klávesnice otevře kontakt okamžitě, i když na něj člověk přijde tabulátorem.
+    pill.addEventListener('focusin', () => {
+      if (!motion.matches && story) window.scrollTo({ top: storyTop + distance });
+    });
+  }
+</script>
+
 <style>
-  .hero {
+  .story {
+    position: relative;
+  }
+
+  .story-frame {
+    position: relative;
     padding-top: 56px;
   }
 
-  .title {
-    margin-bottom: 24px;
+  .story-content {
+    position: relative;
+    z-index: 1;
   }
 
   .title {
     font-size: clamp(2rem, 8.5vw, 3.75rem);
+    margin-bottom: 48px;
   }
 
   .name-word {
@@ -49,57 +152,149 @@ import CopyEmail from '../components/CopyEmail.astro';
     white-space: nowrap;
   }
 
-  .name-letter {
-    display: inline-block;
-    animation: name-reveal 800ms var(--ease) backwards;
-    animation-delay: calc(80ms + var(--letter) * 38ms);
-  }
-
-  .name-dot {
+  .dot-anchor {
     display: inline-block;
     width: 0.12em;
     height: 0.12em;
     margin-left: 0.035em;
     border-radius: 50%;
     background: var(--accent);
-    animation: dot-reveal 650ms var(--spring) 720ms backwards;
   }
 
-  @keyframes name-reveal {
-    from {
-      opacity: 0;
-      transform: translateY(0.25em);
-      filter: blur(6px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-      filter: blur(0);
-    }
+  .story-line {
+    position: relative;
+    max-width: 37ch;
+    margin-top: 24px;
   }
 
-  @keyframes dot-reveal {
-    from {
-      opacity: 0;
-      transform: translateY(-0.35em) scale(0.3);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  .lead {
-    max-width: 40ch;
+  .step-anchor {
+    position: absolute;
+    left: -22px;
+    top: 0.68em;
+    width: 7px;
+    height: 7px;
   }
 
   .contact {
-    margin-top: 16px;
+    margin-top: 48px;
+  }
+
+  .contact-pill {
+    position: relative;
+    width: fit-content;
+    margin-top: 12px;
+  }
+
+  .travel-dot,
+  .scroll-cue {
+    display: none;
+  }
+
+  .scroll-enabled {
+    height: 260svh;
+  }
+
+  .scroll-enabled .story-frame {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 32px 80px;
+  }
+
+  .scroll-enabled .dot-anchor {
+    background: transparent;
+  }
+
+  .scroll-enabled .travel-dot {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 999px;
+    background: var(--accent);
+    pointer-events: none;
+  }
+
+  .scroll-enabled [data-reveal] {
+    opacity: var(--reveal, 0);
+  }
+
+  .scroll-enabled .contact-pill :global(.copy) {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--text);
+  }
+
+  .scroll-enabled .contact:not(:focus-within) .contact-pill {
+    pointer-events: none;
+  }
+
+  .scroll-enabled.contact-ready .contact .contact-pill {
+    pointer-events: auto;
+  }
+
+  .scroll-enabled .contact-pill :global(.copy-btn) {
+    color: inherit;
+  }
+
+  .scroll-enabled .contact-pill :global(.ic-check) {
+    color: inherit;
+  }
+
+  .scroll-enabled .scroll-cue {
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text-3);
+    font-size: 0.75rem;
+  }
+
+  .contact-destination {
+    position: absolute;
+    bottom: 100svh;
+    scroll-margin-top: 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .scroll-enabled .contact-pill :global(.copy) {
+      color: var(--bg);
+    }
   }
 
   @media (max-width: 560px) {
-    .hero {
+    .story-frame {
       padding-top: 32px;
+    }
+
+    .title {
+      margin-bottom: 32px;
+    }
+
+    .contact {
+      margin-top: 32px;
+    }
+
+    .step-anchor {
+      left: -14px;
+    }
+  }
+
+  @media (max-height: 600px) {
+    .scroll-enabled .story-frame {
+      min-height: 580px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-frame {
+      padding-bottom: 24px;
     }
   }
 </style>
