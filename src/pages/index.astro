@@ -3,298 +3,258 @@ import Base from '../layouts/Base.astro';
 import CopyEmail from '../components/CopyEmail.astro';
 ---
 
-<Base>
+<Base wide>
   <section class="story" aria-label="O mně">
-    <div class="story-frame">
-      <div class="story-content">
-        <h1 class="title" aria-label="Mariusz Suchanek">
-          <span class="name-word" aria-hidden="true">Mariusz</span>{' '}<span class="name-word" aria-hidden="true">Suchanek<span class="dot-anchor"></span></span>
+    <div class="story-stage">
+      <div class="scene scene-name">
+        <h1 class="display name" aria-label="Mariusz Suchanek">
+          <span class="line-mask" aria-hidden="true"><span class="line-inner">Mariusz</span></span>
+          <span class="line-mask" aria-hidden="true"><span class="line-inner">Suchanek<span class="dot-anchor" data-dot-start></span></span></span>
         </h1>
-
-        <p class="lead story-line" data-reveal="0.12">
-          <span class="step-anchor" aria-hidden="true"></span>
-          Vývojář a&nbsp;juniorní projektový manažer v&nbsp;Railsformers.
-        </p>
-
-        <p class="lead story-line" data-reveal="0.4">
-          <span class="step-anchor" aria-hidden="true"></span>
-          Stavím weby a&nbsp;aplikace –&nbsp;<em class="serif">AI-first.</em>
-        </p>
-
-        <div class="contact" data-reveal="0.92">
-          <h2 class="section-title">Kontakt</h2>
-          <div class="contact-pill"><CopyEmail /></div>
-        </div>
+        <p class="scene-note name-note">Vývojář a&nbsp;juniorní projektový manažer<br />v&nbsp;Railsformers.</p>
       </div>
+
+      <div class="scene scene-work">
+        <h2 class="display work-title">
+          <span class="line-mask"><span class="line-inner">Stavím weby</span></span>
+          <span class="line-mask"><span class="line-inner">a&nbsp;aplikace<span class="dot-anchor" data-dot-work aria-hidden="true"></span></span></span>
+        </h2>
+        <p class="work-note">AI-first.</p>
+      </div>
+
+      <div class="scene scene-contact">
+        <h2 class="display contact-title">
+          <span class="line-mask"><span class="line-inner">Napiš mi.</span></span>
+        </h2>
+        <div class="contact-pill"><CopyEmail /></div>
+      </div>
+
       <div class="travel-dot" aria-hidden="true"></div>
       <a class="scroll-cue" href="#kontakt" aria-label="Přejít ke kontaktu">
-        <span>Posuň se dál</span><span aria-hidden="true">↓</span>
+        <span class="cue-track" aria-hidden="true"><span></span></span>
+        <span>Posuň se dál</span>
       </a>
+      <div class="story-progress" aria-hidden="true"><span></span></div>
     </div>
     <div id="kontakt" class="contact-destination" aria-hidden="true"></div>
   </section>
 </Base>
 
 <script>
-  const story = document.querySelector<HTMLElement>('.story');
-  const frame = document.querySelector<HTMLElement>('.story-frame');
-  const dot = document.querySelector<HTMLElement>('.travel-dot');
-  const nameAnchor = document.querySelector<HTMLElement>('.dot-anchor');
-  const steps = Array.from(document.querySelectorAll<HTMLElement>('.step-anchor'));
-  const pill = document.querySelector<HTMLElement>('.contact-pill');
-  const reveals = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
-  const cue = document.querySelector<HTMLElement>('.scroll-cue');
-  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  if (story && frame && dot && nameAnchor && pill && steps.length === 2) {
-    const clamp = (value: number) => Math.min(1, Math.max(0, value));
-    const ease = (value: number) => value * value * (3 - 2 * value);
-    let points: { x: number; y: number }[] = [];
-    let pillSize = { width: 0, height: 0 };
-    let storyTop = 0;
-    let distance = 1;
-    let pending = false;
-
-    function measure() {
-      if (!story || !frame || !nameAnchor || !pill) return;
-      const origin = frame.getBoundingClientRect();
-      points = [nameAnchor, ...steps, pill].map((element) => {
-        const rect = element.getBoundingClientRect();
-        return { x: rect.left - origin.left + rect.width / 2, y: rect.top - origin.top + rect.height / 2 };
-      });
-      const rect = pill.getBoundingClientRect();
-      pillSize = { width: rect.width, height: rect.height };
-      storyTop = story.getBoundingClientRect().top + window.scrollY;
-      distance = Math.max(1, story.offsetHeight - frame.offsetHeight);
-      render();
-    }
-
-    function render() {
-      pending = false;
-      if (!story || !dot || !nameAnchor || points.length !== 4) return;
-      const progress = clamp((window.scrollY - storyTop) / (distance * 0.9));
-      story.style.setProperty('--progress', String(progress));
-      for (const element of reveals) {
-        const start = Number(element.dataset.reveal);
-        const amount = ease(clamp((progress - start) / Math.min(0.16, 1 - start)));
-        element.style.setProperty('--reveal', String(amount));
-      }
-      if (cue) cue.style.opacity = String(1 - clamp(progress / 0.12));
-
-      // Tři skoky propojí jméno, obě věty a kontakt. Na konci se kruh rozšíří.
-      const stops = [0, 0.28, 0.56, 0.8];
-      let segment = 0;
-      if (progress > stops[1]) segment = 1;
-      if (progress > stops[2]) segment = 2;
-      const local = clamp((progress - stops[segment]) / (stops[segment + 1] - stops[segment]));
-      const t = ease(local);
-      const start = points[segment];
-      const end = points[segment + 1];
-      const arc = Math.sin(Math.PI * local) * Math.min(55, Math.abs(end.y - start.y) * 0.4);
-      const x = start.x + (end.x - start.x) * t;
-      const y = start.y + (end.y - start.y) * t - arc;
-      const spread = ease(clamp((progress - 0.8) / 0.16));
-      const size = nameAnchor.offsetWidth;
-      dot.style.width = `${size + (pillSize.width - size) * spread}px`;
-      dot.style.height = `${size + (pillSize.height - size) * spread}px`;
-      dot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
-      story.classList.toggle('contact-ready', progress >= 0.96);
-    }
-
-    function scheduleRender() {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(render);
-    }
-
-    function configure() {
-      story?.classList.toggle('scroll-enabled', !motion.matches);
-      measure();
-    }
-
-    window.addEventListener('scroll', scheduleRender, { passive: true });
-    window.addEventListener('resize', measure);
-    window.addEventListener('pageshow', measure);
-    motion.addEventListener('change', configure);
-    new ResizeObserver(measure).observe(pill);
-    configure();
-    document.fonts.ready.then(measure);
-
-    // Klávesnice otevře kontakt okamžitě, i když na něj člověk přijde tabulátorem.
-    pill.addEventListener('focusin', () => {
-      if (!motion.matches && story) window.scrollTo({ top: storyTop + distance });
-    });
-  }
+  import '../scripts/home';
 </script>
 
 <style>
-  .story {
-    position: relative;
+  :global(.main:has(.story)) {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
-  .story-frame {
-    position: relative;
-    padding-top: 56px;
+  :global(body:has(.story) .header) {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 10;
   }
 
-  .story-content {
-    position: relative;
-    z-index: 1;
+  :global(body:has(.story) .ambient-grid) { opacity: 0.35; }
+  :global(body:has(.story) .ambient-orbit) { opacity: 0.35; }
+
+  .story { position: relative; }
+  .story-stage { position: relative; }
+
+  .scene {
+    padding-block: 140px 80px;
+    min-height: 65svh;
   }
 
-  .title {
-    font-size: clamp(2rem, 8.5vw, 3.75rem);
-    margin-bottom: 48px;
+  .display {
+    font-size: clamp(3.5rem, 11.3vw, 9.5rem);
+    font-weight: 500;
+    line-height: 0.94;
+    letter-spacing: -0.075em;
   }
 
-  .name-word {
+  .line-mask {
+    display: block;
+    overflow: clip;
+    padding-block: 0.12em;
+    margin-block: -0.12em;
+  }
+
+  .line-inner {
     display: inline-block;
-    white-space: nowrap;
+    padding-right: 0.035em;
   }
 
   .dot-anchor {
     display: inline-block;
-    width: 0.12em;
-    height: 0.12em;
-    margin-left: 0.035em;
+    width: 0.085em;
+    height: 0.085em;
+    margin-left: 0.065em;
     border-radius: 50%;
     background: var(--accent);
   }
 
-  .story-line {
-    position: relative;
-    max-width: 37ch;
+  .scene-note {
+    margin-top: 40px;
+    color: var(--text-2);
+    font-size: clamp(0.9375rem, 1.35vw, 1.125rem);
+    line-height: 1.65;
+    letter-spacing: -0.015em;
+  }
+
+  .work-title {
+    font-size: clamp(2.9rem, 9.6vw, 8rem);
+  }
+
+  .work-note {
     margin-top: 24px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(2.5rem, 5.2vw, 4.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.04em;
   }
 
-  .step-anchor {
-    position: absolute;
-    left: -22px;
-    top: 0.68em;
-    width: 7px;
-    height: 7px;
-  }
-
-  .contact {
-    margin-top: 48px;
-  }
+  .contact-title { font-size: clamp(3.5rem, 10vw, 8.5rem); }
 
   .contact-pill {
     position: relative;
+    z-index: 2;
     width: fit-content;
-    margin-top: 12px;
+    margin-top: 48px;
   }
+
+  .contact-pill :global(.copy) {
+    padding: 10px 10px 10px 26px;
+    gap: 16px;
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+  }
+
+  .contact-pill :global(.copy-btn) { width: 38px; height: 38px; }
 
   .travel-dot,
-  .scroll-cue {
-    display: none;
-  }
+  .scroll-cue,
+  .story-progress { display: none; }
 
-  .scroll-enabled {
-    height: 260svh;
-  }
+  .is-enhanced { height: 340svh; }
 
-  .scroll-enabled .story-frame {
+  .is-enhanced .story-stage {
     position: sticky;
     top: 0;
     height: 100svh;
+    min-height: 520px;
+  }
+
+  .is-enhanced .scene {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-block: 32px 80px;
+    min-height: 0;
+    padding-block: 104px 96px;
   }
 
-  .scroll-enabled .dot-anchor {
-    background: transparent;
-  }
+  .is-enhanced .scene-work,
+  .is-enhanced .scene-contact { opacity: 0; visibility: hidden; }
 
-  .scroll-enabled .travel-dot {
+  .is-enhanced .dot-anchor { background: transparent; }
+
+  .is-enhanced .travel-dot {
     display: block;
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
+    z-index: 1;
     border-radius: 999px;
     background: var(--accent);
     pointer-events: none;
+    will-change: transform;
   }
 
-  .scroll-enabled [data-reveal] {
-    opacity: var(--reveal, 0);
-  }
-
-  .scroll-enabled .contact-pill :global(.copy) {
-    background: transparent;
+  .is-enhanced .contact-pill :global(.copy) {
     border-color: transparent;
+    background: transparent;
     box-shadow: none;
-    color: var(--text);
+    color: var(--on-accent);
   }
 
-  .scroll-enabled .contact:not(:focus-within) .contact-pill {
-    pointer-events: none;
+  .is-enhanced .contact-pill :global(.copy-btn),
+  .is-enhanced .contact-pill :global(.ic-check) { color: inherit; }
+
+  .contact-pill :global(.copy-btn:hover) {
+    background: color-mix(in srgb, var(--on-accent) 8%, transparent);
   }
 
-  .scroll-enabled.contact-ready .contact .contact-pill {
-    pointer-events: auto;
-  }
-
-  .scroll-enabled .contact-pill :global(.copy-btn) {
-    color: inherit;
-  }
-
-  .scroll-enabled .contact-pill :global(.ic-check) {
-    color: inherit;
-  }
-
-  .scroll-enabled .scroll-cue {
-    position: fixed;
-    bottom: 24px;
-    left: max(var(--gutter), calc((100vw - var(--w)) / 2));
+  .is-enhanced .scroll-cue {
+    position: absolute;
+    bottom: 36px;
+    left: 0;
     display: flex;
     align-items: center;
     gap: 14px;
-    color: var(--text-3);
     font-size: 0.75rem;
+    color: var(--text-3);
   }
 
-  .contact-destination {
+  .cue-track {
+    position: relative;
+    display: block;
+    width: 1px;
+    height: 32px;
+    overflow: hidden;
+    background: var(--line);
+  }
+
+  .cue-track span {
     position: absolute;
-    bottom: 100svh;
-    scroll-margin-top: 0;
+    inset: 0;
+    background: var(--accent);
+    transform: translateY(-100%);
+    animation: cue-flow 2.6s var(--ease) infinite;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .scroll-enabled .contact-pill :global(.copy) {
-      color: var(--bg);
-    }
+  .is-enhanced .story-progress {
+    position: absolute;
+    right: 0;
+    bottom: 44px;
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: var(--line);
   }
 
-  @media (max-width: 560px) {
-    .story-frame {
-      padding-top: 32px;
-    }
-
-    .title {
-      margin-bottom: 32px;
-    }
-
-    .contact {
-      margin-top: 32px;
-    }
-
-    .step-anchor {
-      left: -14px;
-    }
+  .story-progress > span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
   }
 
-  @media (max-height: 600px) {
-    .scroll-enabled .story-frame {
-      min-height: 580px;
-    }
+  .contact-destination { position: absolute; bottom: 100svh; }
+
+  @keyframes cue-flow {
+    0% { transform: translateY(-100%); }
+    65%, 100% { transform: translateY(100%); }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .story-frame {
-      padding-bottom: 24px;
-    }
+  @media (max-width: 600px) {
+    .is-enhanced { height: 310svh; }
+    .display { font-size: clamp(3.35rem, 13.5vw, 5rem); }
+    .work-title { font-size: clamp(2.65rem, 10.7vw, 4rem); }
+    .contact-title { font-size: clamp(3.3rem, 13vw, 5rem); }
+    .scene-note { margin-top: 32px; }
+    .contact-pill { margin-top: 36px; }
+    .contact-pill :global(.copy) { gap: 8px; padding-left: 20px; }
+    .is-enhanced .scene { padding-block: 88px 100px; }
+    .is-enhanced .scroll-cue { bottom: 28px; }
+    .is-enhanced .story-progress { bottom: 36px; width: 48px; }
+  }
+
+  @media (prefers-reduced-motion: reduce), (max-height: 519px) {
+    .scene { min-height: auto; padding-block: 120px 40px; }
+    .scene:last-of-type { padding-bottom: 100px; }
   }
 </style>
