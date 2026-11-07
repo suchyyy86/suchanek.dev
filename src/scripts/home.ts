@@ -143,6 +143,7 @@ function initializeStory(story: HTMLElement) {
       observer.disconnect();
       elements.pill.removeEventListener('focusin', showContact);
       story.classList.remove('is-enhanced');
+      gsap.set([scenes, lines.flat(), notes.filter(Boolean), elements.dot, elements.pill, cue, meter], { clearProps: 'all' });
       scenes.forEach((scene) => {
         scene.inert = false;
         scene.removeAttribute('aria-hidden');
