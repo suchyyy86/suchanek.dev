@@ -132,7 +132,8 @@ function initializeStory(story: HTMLElement) {
     const trigger = ScrollTrigger.create({
       trigger: story,
       start: 'top top',
-      end: 'bottom bottom',
+      // Keep the completed contact button pinned for the final 35svh.
+      end: () => `bottom bottom+=${elements.stage.offsetHeight * 0.35}`,
       animation,
       scrub: 0.65,
       onRefresh: measure,
