@@ -134,13 +134,13 @@ function initializeStory(story: HTMLElement) {
       start: 'top top',
       end: 'bottom bottom',
       animation,
-      scrub: 0.45,
+      scrub: 0.65,
       onRefresh: measure,
     });
 
     // One restrained entrance, independent of subsequent scroll scrubbing.
     if (window.scrollY < story.offsetTop + 10) {
-      gsap.from(lines[0], { yPercent: 108, rotate: 2, duration: 1.05, stagger: 0.1, ease: 'power3.out' });
+      gsap.from(lines[0], { yPercent: 108, rotate: 2, duration: 1.2, stagger: 0.12, ease: 'power3.out' });
       gsap.from(notes[0], { opacity: 0, y: 12, duration: 0.8, delay: 0.35, ease: 'power2.out' });
       gsap.from(elements.dot, { opacity: 0, scale: 0, duration: 0.65, delay: 0.55, ease: 'back.out(1.7)' });
     }
