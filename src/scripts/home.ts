@@ -23,6 +23,7 @@ function initializeStory(story: HTMLElement) {
   const meter = story.querySelector('.cue-track > span');
   const scrollLabels = Array.from(story.querySelectorAll<HTMLElement>('[data-scroll-label]'));
   const nameChars = Array.from(story.querySelectorAll<HTMLElement>('.name-char'));
+  const planeStrokes = Array.from(story.querySelectorAll<SVGPathElement>('.contact-plane path'));
   const footer = document.querySelector<HTMLElement>('.footer');
   const media = gsap.matchMedia();
 
@@ -119,6 +120,17 @@ function initializeStory(story: HTMLElement) {
       elements.underline.style.strokeDashoffset = String(1 - inkProgress);
       elements.underline.style.opacity = inkProgress > 0 ? '1' : '0';
 
+      // Trace the plane first, then add three short motion strokes.
+      const planeProgress = between(p, 0.835, 0.975);
+      planeStrokes.forEach((stroke, index) => {
+        const drawn = index === 0
+          ? between(planeProgress, 0, 0.8)
+          : between(planeProgress, 0.7 + (index - 1) * 0.08, 0.84 + (index - 1) * 0.08);
+        stroke.style.strokeDasharray = '1 1';
+        stroke.style.strokeDashoffset = String(1 - drawn);
+        stroke.style.opacity = drawn > 0 ? '1' : '0';
+      });
+
       const currentScene = p < 0.28 ? 0 : p < 0.7 ? 1 : 2;
       if (currentScene !== activeScene) {
         scenes.forEach((scene, index) => {
@@ -202,7 +214,7 @@ function initializeStory(story: HTMLElement) {
       if (footer) gsap.set(footer, { clearProps: 'marginTop' });
       story.classList.remove('is-enhanced');
       intro?.kill();
-      gsap.set([scenes, lines.flat(), nameChars, scrollLabels, notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });
+      gsap.set([scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });
       scenes.forEach((scene) => {
         scene.inert = false;
         scene.removeAttribute('aria-hidden');

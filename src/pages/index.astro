@@ -33,9 +33,17 @@ import CopyEmail from '../components/CopyEmail.astro';
       </div>
 
       <div class="scene scene-contact">
-        <h2 class="display contact-title">
-          <span class="line-mask"><span class="line-inner">Napiš mi.</span></span>
-        </h2>
+        <div class="contact-heading">
+          <h2 class="display contact-title">
+            <span class="line-mask"><span class="line-inner">Napiš mi.</span></span>
+          </h2>
+          <svg class="contact-plane" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M 15 35 Q 12 34 16 33 L 84 13 Q 87 12 85 16 L 53 84 Q 51 88 50 84 L 40 54 Z M 40 54 L 85 14" pathLength="1" />
+            <path d="M 26 57 L 15 66" pathLength="1" />
+            <path d="M 31 66 L 11 82" pathLength="1" />
+            <path d="M 35 77 L 27 84" pathLength="1" />
+          </svg>
+        </div>
         <div class="contact-pill"><CopyEmail /></div>
       </div>
 
@@ -166,6 +174,24 @@ import CopyEmail from '../components/CopyEmail.astro';
   }
 
   .contact-title { font-size: clamp(3.5rem, 10vw, 8.5rem); }
+
+  .contact-heading {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 2.8vw, 40px);
+    width: fit-content;
+  }
+
+  .contact-plane {
+    flex: none;
+    width: clamp(48px, 7vw, 92px);
+    overflow: visible;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 
   .contact-pill {
     position: relative;
