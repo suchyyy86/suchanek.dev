@@ -235,7 +235,7 @@ import CopyEmail from '../components/CopyEmail.astro';
     z-index: 1;
     border-radius: 999px;
     background: var(--accent);
-    border: 1px solid transparent;
+    border: 1.5px solid transparent;
     pointer-events: none;
     will-change: transform;
   }
@@ -244,12 +244,10 @@ import CopyEmail from '../components/CopyEmail.astro';
     border-color: transparent;
     background: transparent;
     box-shadow: none;
-    color: var(--text);
   }
 
   .is-enhanced .contact-pill :global(.copy:hover) {
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    background: color-mix(in srgb, var(--accent) 7%, transparent);
   }
 
   .is-enhanced .contact-pill :global(.copy:active) {

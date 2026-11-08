@@ -20,9 +20,9 @@ const { email = site.email } = Astro.props;
     place-items: center;
     min-height: 56px;
     padding: 15px 28px;
-    border: 1px solid color-mix(in srgb, var(--accent) 12%, var(--line));
-    border-radius: 16px;
-    background: color-mix(in srgb, var(--accent) 3%, var(--surface));
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    background: transparent;
     color: var(--text);
     font-size: clamp(1rem, 1.4vw, 1.125rem);
     font-weight: 500;
@@ -31,15 +31,14 @@ const { email = site.email } = Astro.props;
     white-space: nowrap;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: background-color 250ms var(--ease), border-color 250ms var(--ease);
+    transition: background-color 250ms var(--ease), color 250ms var(--ease);
   }
 
   .copy:hover {
-    background: color-mix(in srgb, var(--accent) 9%, var(--surface));
-    border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+    background: color-mix(in srgb, var(--accent) 7%, transparent);
   }
 
-  .copy.copied { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .copy.copied { color: var(--accent); }
 
   .copy:active {
     background: color-mix(in srgb, var(--accent) 14%, var(--surface));

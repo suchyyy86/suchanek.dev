@@ -36,7 +36,7 @@ function initializeStory(story: HTMLElement) {
     let dotSize = 0;
     let activeScene = -1;
     let intro: gsap.core.Timeline | undefined;
-    let colors = { accent: '', surface: '', line: '' };
+    let colors = { accent: '' };
 
     const clamp = gsap.utils.clamp(0, 1);
     const between = (value: number, start: number, end: number) => clamp((value - start) / (end - start));
@@ -64,8 +64,6 @@ function initializeStory(story: HTMLElement) {
       const accent = tokens.getPropertyValue('--accent').trim();
       colors = {
         accent,
-        surface: mix(tokens.getPropertyValue('--surface').trim(), accent, 0.03),
-        line: mix(tokens.getPropertyValue('--line').trim(), accent, 0.12),
       };
       pillWidth = elements.pill.offsetWidth;
       pillHeight = elements.pill.offsetHeight;
@@ -161,9 +159,9 @@ function initializeStory(story: HTMLElement) {
         y: y - height / 2,
         width,
         height,
-        borderRadius: mix(height / 2, 16, spread),
-        backgroundColor: mix(colors.accent, colors.surface, spread),
-        borderColor: mix('rgba(0, 0, 0, 0)', colors.line, spread),
+        borderRadius: mix(height / 2, 8, spread),
+        backgroundColor: mix(colors.accent, 'rgba(0, 0, 0, 0)', spread),
+        borderColor: mix('rgba(0, 0, 0, 0)', colors.accent, spread),
         scaleX: 1 + landing * 0.2,
         scaleY: 1 - landing * 0.16,
         rotation: arc * (segment === 0 ? 12 : -12) * (1 - spread),
