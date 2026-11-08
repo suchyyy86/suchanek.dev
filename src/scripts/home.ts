@@ -21,6 +21,10 @@ function initializeStory(story: HTMLElement) {
   const cue = story.querySelector('.scroll-cue');
   const meter = story.querySelector('.cue-track > span');
   const scrollLabel = story.querySelector('[data-scroll-label]');
+  const ink = story.querySelector<SVGPathElement>('.ink path');
+  if (!ink) return;
+  const stroke = ink;
+  const length = stroke.getTotalLength();
   const media = gsap.matchMedia();
 
   media.add('(prefers-reduced-motion: no-preference) and (min-height: 520px)', () => {
@@ -106,8 +110,23 @@ function initializeStory(story: HTMLElement) {
       const to = points[segment + 1];
       const arc = Math.sin(Math.PI * travel);
       const lateral = Math.min(elements.stage.offsetWidth * 0.17, 155);
-      const x = mix(from.x, to.x, t) + arc * lateral;
-      const y = mix(from.y, to.y, t) - arc * Math.min(elements.stage.offsetHeight * 0.15, 110);
+      let x = mix(from.x, to.x, t) + arc * lateral;
+      let y = mix(from.y, to.y, t) - arc * Math.min(elements.stage.offsetHeight * 0.15, 110);
+      const draw = ease(between(p, 0.48, 0.565));
+      stroke.style.strokeDasharray = '1';
+      stroke.style.strokeDashoffset = String(1 - draw);
+      stroke.style.opacity = draw > 0 ? '1' : '0';
+      if (p >= 0.4 && p < 0.81) {
+        const matrix = stroke.getScreenCTM();
+        if (matrix) {
+          const tip = stroke.getPointAtLength(draw * length).matrixTransform(matrix);
+          const rect = elements.stage.getBoundingClientRect();
+          const approach = ease(between(p, 0.4, 0.48));
+          const depart = segment === 1 ? t : 0;
+          x = mix(mix(points[1].x, tip.x - rect.left, approach), points[2].x, depart) + arc * lateral;
+          y = mix(mix(points[1].y, tip.y - rect.top, approach), points[2].y, depart) - arc * Math.min(elements.stage.offsetHeight * 0.15, 110);
+        }
+      }
       const spread = ease(between(p, 0.855, 0.94));
       const grow = ease(between(p, 0.81, 0.87));
       const landing = Math.sin(between(travel, 0.8, 1) * Math.PI) * (1 - spread);
@@ -152,6 +171,7 @@ function initializeStory(story: HTMLElement) {
     return () => {
       observer.disconnect();
       story.classList.remove('is-enhanced');
+      stroke.removeAttribute('style');
       gsap.set([scenes, lines.flat(), notes.filter(Boolean), elements.dot, elements.pill, cue, meter], { clearProps: 'all' });
       scenes.forEach((scene) => {
         scene.inert = false;
