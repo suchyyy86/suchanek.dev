@@ -11,7 +11,7 @@ function initializeStory(story: HTMLElement) {
   const dot = story.querySelector<HTMLElement>('.travel-dot');
   const startAnchor = story.querySelector<HTMLElement>('[data-dot-start]');
   const workAnchor = story.querySelector<HTMLElement>('[data-dot-work]');
-  const underline = story.querySelector<SVGPathElement>('.work-underline path');
+  const underline = story.querySelector<SVGPathElement>('.work-underline-ink');
   const pill = story.querySelector<HTMLElement>('.contact-pill');
   const scenes = Array.from(story.querySelectorAll<HTMLElement>('.scene'));
   if (!stage || !dot || !startAnchor || !workAnchor || !pill || !underline || scenes.length !== 3) return;
@@ -109,7 +109,9 @@ function initializeStory(story: HTMLElement) {
 
       // The dot rests after “aplikace” while a separate pen stroke is drawn.
       const inkProgress = gsap.parseEase('power2.out')(between(p, 0.43, 0.55));
-      elements.underline.style.strokeDasharray = '1';
+      // Draw a scaling mask: normalized dashes on a non-scaling stroke can repeat
+      // after the responsive SVG transform and reveal disconnected fragments.
+      elements.underline.style.strokeDasharray = '1 1';
       elements.underline.style.strokeDashoffset = String(1 - inkProgress);
       elements.underline.style.opacity = inkProgress > 0 ? '1' : '0';
 

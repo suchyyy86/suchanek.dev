@@ -22,7 +22,12 @@ import CopyEmail from '../components/CopyEmail.astro';
         <p class="work-note">
           AI-first.
           <svg class="work-underline" viewBox="0 0 150 20" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M 3 7 C 30 4, 75 3, 104 4 C 111 4.5, 76 11, 35 14 C 18 15, 15 12.5, 31 12 C 70 10.5, 111 13, 147 8" pathLength="1" />
+            <defs>
+              <mask id="work-underline-reveal" maskUnits="userSpaceOnUse" x="-5" y="-5" width="160" height="30">
+                <path class="work-underline-ink" d="M 3 7 C 30 4, 75 3, 104 4 C 111 4.5, 76 11, 35 14 C 18 15, 15 12.5, 31 12 C 70 10.5, 111 13, 147 8" pathLength="1" />
+              </mask>
+            </defs>
+            <path d="M 3 7 C 30 4, 75 3, 104 4 C 111 4.5, 76 11, 35 14 C 18 15, 15 12.5, 31 12 C 70 10.5, 111 13, 147 8" mask="url(#work-underline-reveal)" />
           </svg>
         </p>
       </div>
@@ -138,13 +143,21 @@ import CopyEmail from '../components/CopyEmail.astro';
     pointer-events: none;
   }
 
-  .work-underline path {
+  .work-underline > path {
     fill: none;
     stroke: var(--accent);
     stroke-width: 1.7px;
     stroke-linecap: round;
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
+  }
+
+  .work-underline-ink {
+    fill: none;
+    stroke: white;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .contact-title { font-size: clamp(3.5rem, 10vw, 8.5rem); }
