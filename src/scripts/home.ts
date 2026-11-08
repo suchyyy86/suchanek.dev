@@ -11,11 +11,12 @@ function initializeStory(story: HTMLElement) {
   const dot = story.querySelector<HTMLElement>('.travel-dot');
   const startAnchor = story.querySelector<HTMLElement>('[data-dot-start]');
   const workAnchor = story.querySelector<HTMLElement>('[data-dot-work]');
+  const underline = story.querySelector<SVGPathElement>('.work-underline path');
   const pill = story.querySelector<HTMLElement>('.contact-pill');
   const scenes = Array.from(story.querySelectorAll<HTMLElement>('.scene'));
-  if (!stage || !dot || !startAnchor || !workAnchor || !pill || scenes.length !== 3) return;
+  if (!stage || !dot || !startAnchor || !workAnchor || !pill || !underline || scenes.length !== 3) return;
 
-  const elements = { stage, dot, startAnchor, workAnchor, pill };
+  const elements = { stage, dot, startAnchor, workAnchor, pill, underline };
   const lines = scenes.map((scene) => Array.from(scene.querySelectorAll<HTMLElement>('.line-inner')));
   const notes = [story.querySelector('.name-note'), story.querySelector('.work-note')];
   const cue = story.querySelector('.scroll-cue');
@@ -87,6 +88,12 @@ function initializeStory(story: HTMLElement) {
       gsap.set(elements.pill, { opacity: ease(between(p, 0.91, 0.975)), y: 0 });
       gsap.set(meter, { scaleY: p });
 
+      // The dot rests after “aplikace” while a separate pen stroke is drawn.
+      const inkProgress = gsap.parseEase('power2.out')(between(p, 0.43, 0.55));
+      elements.underline.style.strokeDasharray = '1';
+      elements.underline.style.strokeDashoffset = String(1 - inkProgress);
+      elements.underline.style.opacity = inkProgress > 0 ? '1' : '0';
+
       const currentScene = p < 0.28 ? 0 : p < 0.7 ? 1 : 2;
       if (currentScene !== activeScene) {
         scenes.forEach((scene, index) => {
@@ -152,7 +159,7 @@ function initializeStory(story: HTMLElement) {
     return () => {
       observer.disconnect();
       story.classList.remove('is-enhanced');
-      gsap.set([scenes, lines.flat(), notes.filter(Boolean), elements.dot, elements.pill, cue, meter], { clearProps: 'all' });
+      gsap.set([scenes, lines.flat(), notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });
       scenes.forEach((scene) => {
         scene.inert = false;
         scene.removeAttribute('aria-hidden');

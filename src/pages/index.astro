@@ -19,7 +19,12 @@ import CopyEmail from '../components/CopyEmail.astro';
           <span class="line-mask"><span class="line-inner">Stavím weby</span></span>
           <span class="line-mask"><span class="line-inner">a&nbsp;aplikace<span class="dot-anchor" data-dot-work aria-hidden="true"></span></span></span>
         </h2>
-        <p class="work-note">AI-first.</p>
+        <p class="work-note">
+          AI-first.
+          <svg class="work-underline" viewBox="0 0 150 20" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M 3 7 C 30 4, 75 3, 104 4 C 111 4.5, 76 11, 35 14 C 18 15, 15 12.5, 31 12 C 70 10.5, 111 13, 147 8" pathLength="1" />
+          </svg>
+        </p>
       </div>
 
       <div class="scene scene-contact">
@@ -107,12 +112,33 @@ import CopyEmail from '../components/CopyEmail.astro';
   }
 
   .work-note {
+    position: relative;
+    width: fit-content;
     margin-top: 24px;
     font-family: var(--serif);
     font-style: italic;
     font-size: clamp(2.5rem, 5.2vw, 4.75rem);
     line-height: 1.1;
     letter-spacing: -0.04em;
+  }
+
+  .work-underline {
+    position: absolute;
+    left: -0.035em;
+    top: calc(100% + 4px);
+    width: 125%;
+    height: 0.28em;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .work-underline path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.7px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
   }
 
   .contact-title { font-size: clamp(3.5rem, 10vw, 8.5rem); }
