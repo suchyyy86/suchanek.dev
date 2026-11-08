@@ -23,6 +23,7 @@ function initializeStory(story: HTMLElement) {
   const meter = story.querySelector('.cue-track > span');
   const scrollLabels = Array.from(story.querySelectorAll<HTMLElement>('[data-scroll-label]'));
   const nameChars = Array.from(story.querySelectorAll<HTMLElement>('.name-char'));
+  const footer = document.querySelector<HTMLElement>('.footer');
   const media = gsap.matchMedia();
 
   media.add('(prefers-reduced-motion: no-preference) and (min-height: 520px)', () => {
@@ -42,6 +43,9 @@ function initializeStory(story: HTMLElement) {
     const mix = gsap.utils.interpolate;
 
     function measure() {
+      // Let the footer enter over the last part of the sticky stage. Its height
+      // no longer extends the document and releases the contact scene upward.
+      if (footer) gsap.set(footer, { marginTop: -footer.offsetHeight });
       // offsetTop/Left keep anchors stable while their text is animated.
       function center(element: HTMLElement) {
         let x = element.offsetWidth / 2;
@@ -166,6 +170,14 @@ function initializeStory(story: HTMLElement) {
       onRefresh: measure,
     });
 
+    const footerTrigger = footer ? ScrollTrigger.create({
+      trigger: footer,
+      start: 'top bottom',
+      end: 'bottom bottom',
+      onUpdate: (self) => gsap.set(cue, { opacity: 1 - self.progress, y: -8 * self.progress }),
+      onRefresh: (self) => gsap.set(cue, { opacity: 1 - self.progress, y: -8 * self.progress }),
+    }) : undefined;
+
     // One restrained entrance, independent of subsequent scroll scrubbing.
     if (window.scrollY < story.offsetTop + 10) {
       intro = gsap.timeline()
@@ -182,9 +194,12 @@ function initializeStory(story: HTMLElement) {
 
     const observer = new ResizeObserver(() => trigger.refresh());
     observer.observe(elements.pill);
+    if (footer) observer.observe(footer);
 
     return () => {
       observer.disconnect();
+      footerTrigger?.kill();
+      if (footer) gsap.set(footer, { clearProps: 'marginTop' });
       story.classList.remove('is-enhanced');
       intro?.kill();
       gsap.set([scenes, lines.flat(), nameChars, scrollLabels, notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });

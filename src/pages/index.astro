@@ -72,6 +72,11 @@ import CopyEmail from '../components/CopyEmail.astro';
   :global(body:has(.story) .ambient-grid) { opacity: 0.35; }
   :global(body:has(.story) .ambient-orbit) { opacity: 0.35; }
 
+  :global(body:has(.story.is-enhanced) .footer) {
+    position: relative;
+    z-index: 3;
+  }
+
   .story { position: relative; }
   .story-stage { position: relative; }
 
