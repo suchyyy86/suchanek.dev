@@ -8,8 +8,8 @@ import CopyEmail from '../components/CopyEmail.astro';
     <div class="story-stage">
       <div class="scene scene-name">
         <h1 class="display name" aria-label="Mariusz Suchanek">
-          <span class="line-mask" aria-hidden="true"><span class="line-inner">Mariusz</span></span>
-          <span class="line-mask" aria-hidden="true"><span class="line-inner">Suchanek<span class="dot-anchor" data-dot-start></span></span></span>
+          <span class="line-mask" aria-hidden="true"><span class="line-inner">{Array.from('Mariusz').map((letter) => <span class="name-char">{letter}</span>)}</span></span>
+          <span class="line-mask" aria-hidden="true"><span class="line-inner">{Array.from('Suchanek').map((letter) => <span class="name-char">{letter}</span>)}<span class="dot-anchor" data-dot-start></span></span></span>
         </h1>
         <p class="scene-note name-note">Vývojář a&nbsp;juniorní projektový manažer<br />v&nbsp;Railsformers.</p>
       </div>
@@ -37,7 +37,11 @@ import CopyEmail from '../components/CopyEmail.astro';
       <div class="travel-dot" aria-hidden="true"></div>
       <a class="scroll-cue" href="#kontakt" aria-label="Přejít ke kontaktu">
         <span class="cue-track" aria-hidden="true"><span></span></span>
-        <span data-scroll-label>Zvědavý?</span>
+        <span class="cue-label" aria-hidden="true">
+          <span data-scroll-label>Zvědavý?</span>
+          <span data-scroll-label>Zvědavost tě posune dál.</span>
+          <span data-scroll-label>Kontakt</span>
+        </span>
       </a>
     </div>
     <div id="kontakt" class="contact-destination" aria-hidden="true"></div>
@@ -98,6 +102,8 @@ import CopyEmail from '../components/CopyEmail.astro';
     border-radius: 50%;
     background: var(--accent);
   }
+
+  .name-char { display: inline-block; }
 
   .scene-note {
     margin-top: 40px;
@@ -225,6 +231,22 @@ import CopyEmail from '../components/CopyEmail.astro';
     overflow: hidden;
     background: var(--line);
   }
+
+  .cue-label {
+    display: grid;
+    overflow: clip;
+    perspective: 500px;
+    line-height: 1.6;
+  }
+
+  .cue-label > span {
+    grid-area: 1 / 1;
+    white-space: nowrap;
+    transform-origin: 50% 50%;
+    backface-visibility: hidden;
+  }
+
+  .cue-label > span:not(:first-child) { opacity: 0; }
 
   .cue-track span {
     position: absolute;

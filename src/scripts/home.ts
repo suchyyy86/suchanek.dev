@@ -21,7 +21,8 @@ function initializeStory(story: HTMLElement) {
   const notes = [story.querySelector('.name-note'), story.querySelector('.work-note')];
   const cue = story.querySelector('.scroll-cue');
   const meter = story.querySelector('.cue-track > span');
-  const scrollLabel = story.querySelector('[data-scroll-label]');
+  const scrollLabels = Array.from(story.querySelectorAll<HTMLElement>('[data-scroll-label]'));
+  const nameChars = Array.from(story.querySelectorAll<HTMLElement>('.name-char'));
   const media = gsap.matchMedia();
 
   media.add('(prefers-reduced-motion: no-preference) and (min-height: 520px)', () => {
@@ -32,6 +33,7 @@ function initializeStory(story: HTMLElement) {
     let pillHeight = 0;
     let dotSize = 0;
     let activeScene = -1;
+    let intro: gsap.core.Timeline | undefined;
     let colors = { accent: '', surface: '', line: '' };
 
     const clamp = gsap.utils.clamp(0, 1);
@@ -78,6 +80,11 @@ function initializeStory(story: HTMLElement) {
 
     function render() {
       const p = state.progress;
+      // Finish the entrance if someone scrolls immediately, keeping the story responsive.
+      if (p > 0.025 && intro) {
+        intro.progress(1).kill();
+        intro = undefined;
+      }
       const introExit = ease(between(p, 0.16, 0.29));
       const workEnter = between(p, 0.28, 0.42);
       const workExit = ease(between(p, 0.57, 0.69));
@@ -87,6 +94,18 @@ function initializeStory(story: HTMLElement) {
       setScene(2, ease(contactEnter), contactEnter, 0);
       gsap.set(elements.pill, { opacity: ease(between(p, 0.91, 0.975)), y: 0 });
       gsap.set(meter, { scaleY: p });
+
+      // Scrub the flip in both directions; no queued transitions on fast scrolling.
+      const labelPhase = p < 0.5 ? ease(between(p, 0.25, 0.31)) : 1 + ease(between(p, 0.67, 0.73));
+      scrollLabels.forEach((label, index) => {
+        const offset = clamp(Math.abs(index - labelPhase));
+        const direction = Math.sign(index - labelPhase);
+        gsap.set(label, {
+          yPercent: direction * offset * 100,
+          rotationX: -direction * offset * 65,
+          opacity: 1 - offset,
+        });
+      });
 
       // The dot rests after “aplikace” while a separate pen stroke is drawn.
       const inkProgress = gsap.parseEase('power2.out')(between(p, 0.43, 0.55));
@@ -101,7 +120,6 @@ function initializeStory(story: HTMLElement) {
           scene.inert = index !== currentScene;
         });
         activeScene = currentScene;
-        if (scrollLabel) scrollLabel.textContent = ['Zvědavý?', 'Zvědavost tě posune dál.', 'Kontakt'][currentScene];
       }
       elements.pill.inert = p < 0.975;
 
@@ -148,9 +166,16 @@ function initializeStory(story: HTMLElement) {
 
     // One restrained entrance, independent of subsequent scroll scrubbing.
     if (window.scrollY < story.offsetTop + 10) {
-      gsap.from(lines[0], { yPercent: 108, rotate: 2, duration: 1.2, stagger: 0.12, ease: 'power3.out' });
-      gsap.from(notes[0], { opacity: 0, y: 12, duration: 0.8, delay: 0.35, ease: 'power2.out' });
-      gsap.from(elements.dot, { opacity: 0, scale: 0, duration: 0.65, delay: 0.55, ease: 'back.out(1.7)' });
+      intro = gsap.timeline()
+        .from(nameChars, {
+          yPercent: 115,
+          rotation: 3,
+          duration: 1.15,
+          stagger: 0.045,
+          ease: 'power3.out',
+        })
+        .from(notes[0], { opacity: 0, y: 12, duration: 0.8, ease: 'power2.out' }, 0.55)
+        .from(elements.dot, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 1.4);
     }
 
     const observer = new ResizeObserver(() => trigger.refresh());
@@ -159,13 +184,13 @@ function initializeStory(story: HTMLElement) {
     return () => {
       observer.disconnect();
       story.classList.remove('is-enhanced');
-      gsap.set([scenes, lines.flat(), notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });
+      intro?.kill();
+      gsap.set([scenes, lines.flat(), nameChars, scrollLabels, notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });
       scenes.forEach((scene) => {
         scene.inert = false;
         scene.removeAttribute('aria-hidden');
       });
       elements.pill.inert = false;
-      if (scrollLabel) scrollLabel.textContent = 'Zvědavý?';
     };
   });
 
