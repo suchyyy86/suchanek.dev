@@ -12,17 +12,18 @@ function initializeStory(story: HTMLElement) {
   const startAnchor = story.querySelector<HTMLElement>('[data-dot-start]');
   const workAnchor = story.querySelector<HTMLElement>('[data-dot-work]');
   const autoAnchor = story.querySelector<HTMLElement>('[data-dot-auto]');
+  const autoArt = story.querySelector<HTMLElement>('.auto-art');
   const underline = story.querySelector<SVGPathElement>('.work-underline-ink');
   const loopSvg = story.querySelector<SVGSVGElement>('.auto-loop');
   const loopRing = story.querySelector<SVGPathElement>('.auto-loop-ring');
   const pill = story.querySelector<HTMLElement>('.contact-pill');
   const scenes = Array.from(story.querySelectorAll<HTMLElement>('.scene'));
   if (
-    !stage || !dot || !startAnchor || !workAnchor || !autoAnchor || !pill || !underline ||
+    !stage || !dot || !startAnchor || !workAnchor || !autoAnchor || !autoArt || !pill || !underline ||
     !loopSvg || !loopRing || scenes.length !== 4
   ) return;
 
-  const elements = { stage, dot, startAnchor, workAnchor, autoAnchor, pill, underline, loopSvg, loopRing };
+  const elements = { stage, dot, startAnchor, workAnchor, autoAnchor, autoArt, pill, underline, loopSvg, loopRing };
   const lines = scenes.map((scene) => Array.from(scene.querySelectorAll<HTMLElement>('.line-inner')));
   const notes = [story.querySelector('.name-note'), story.querySelector('.work-note'), story.querySelector('.auto-note')];
   const cue = story.querySelector('.scroll-cue');
@@ -30,7 +31,6 @@ function initializeStory(story: HTMLElement) {
   const scrollLabels = Array.from(story.querySelectorAll<HTMLElement>('[data-scroll-label]'));
   const nameChars = Array.from(story.querySelectorAll<HTMLElement>('.name-char'));
   const planeStrokes = Array.from(story.querySelectorAll<SVGPathElement>('.contact-plane path'));
-  const autoExamples = Array.from(story.querySelectorAll<HTMLElement>('.auto-examples li'));
   const footer = document.querySelector<HTMLElement>('.footer');
   const media = gsap.matchMedia();
 
@@ -91,11 +91,11 @@ function initializeStory(story: HTMLElement) {
       points[3].x -= (pillWidth - pillHeight) / 2;
       dotSize = elements.startAnchor.offsetWidth;
 
-      // A continuous figure-eight starts and ends at the full stop. Fit the whole
-      // stroke inside the content width, including narrow screens and larger text.
-      const em = elements.autoAnchor.offsetWidth / 0.085;
-      const width = Math.max(12, Math.min(em * 1.65, elements.stage.offsetWidth - points[2].x - 8));
-      loop = { x: points[2].x + width / 2, y: points[2].y, a: width / 2, b: width * 0.2 };
+      // The illustration has its own space between heading and copy, aligned
+      // with the text edge rather than attached to the end of the last word.
+      const artCenter = center(elements.autoArt);
+      const width = elements.autoArt.offsetWidth - 8;
+      loop = { x: artCenter.x, y: artCenter.y, a: width / 2, b: (elements.autoArt.offsetHeight - 8) / 2 };
       const height = loop.b * 2 + 8;
       elements.loopSvg.setAttribute('width', String(width + 8));
       elements.loopSvg.setAttribute('height', String(height));
@@ -106,7 +106,7 @@ function initializeStory(story: HTMLElement) {
       }).join(' ');
       elements.loopRing.setAttribute('d', path);
       loopLength = elements.loopRing.getTotalLength();
-      gsap.set(elements.loopSvg, { x: points[2].x - 4, y: loop.y - height / 2 });
+      gsap.set(elements.loopSvg, { x: loop.x - loop.a - 4, y: loop.y - height / 2 });
       render();
     }
 
@@ -136,10 +136,6 @@ function initializeStory(story: HTMLElement) {
       setScene(1, ease(workEnter) * (1 - workExit), workEnter, workExit);
       setScene(2, ease(autoEnter) * (1 - autoExit), autoEnter, autoExit);
       setScene(3, ease(contactEnter), contactEnter, 0);
-      autoExamples.forEach((example, index) => {
-        const reveal = ease(between(p, at(0.82 + index * 0.025), at(0.89 + index * 0.025)));
-        gsap.set(example, { opacity: reveal, y: (1 - reveal) * 8 });
-      });
       gsap.set(elements.pill, { opacity: ease(between(p, at(1.31), at(1.375))), y: 0 });
       gsap.set(meter, { scaleY: p });
 
@@ -169,7 +165,7 @@ function initializeStory(story: HTMLElement) {
 
       // One calm, continuous cycle: the dot traces automation, then carries on
       // toward contact. Geometry and dash reveal share the same path distance.
-      const loopRun = between(p, at(0.84), at(1.0));
+      const loopRun = between(p, at(0.865), at(1.0));
       const ringDrawn = loopEase(loopRun);
       const ringErase = ease(between(p, at(1.0), at(1.1)));
       elements.loopRing.style.strokeDasharray = '1 1';
@@ -197,7 +193,7 @@ function initializeStory(story: HTMLElement) {
       }
       elements.pill.inert = p < at(1.375);
 
-      // The same dot hops from the name to “aplikace”, then to “rutinu”, loops there,
+      // The same dot hops from the name to “aplikace”, then to “času”, loops below,
       // and finally flies to the contact surface it turns into.
       const lateral = Math.min(elements.stage.offsetWidth * 0.17, 155);
       const lift = Math.min(elements.stage.offsetHeight * 0.15, 110);
@@ -206,16 +202,20 @@ function initializeStory(story: HTMLElement) {
       let y: number;
       let rotation = 0;
       let landing = 0;
-      if (p >= at(0.84) && p < at(1.0)) {
+      if (p >= at(0.84) && p < at(0.865)) {
+        const settle = ease(between(p, at(0.84), at(0.865)));
+        x = mix(points[2].x, loop.x - loop.a, settle);
+        y = mix(points[2].y, loop.y, settle);
+      } else if (p >= at(0.865) && p < at(1.0)) {
         const tip = elements.loopRing.getPointAtLength(loopLength * ringDrawn);
-        x = points[2].x - 4 + tip.x;
+        x = loop.x - loop.a - 4 + tip.x;
         y = loop.y - (loop.b + 4) + tip.y;
       } else {
         const segment = p < at(0.58) ? 0 : p < at(1.0) ? 1 : 2;
         const [start, end] = flights[segment];
         const travel = between(p, at(start), at(end));
         const t = ease(travel);
-        const from = points[segment];
+        const from = segment === 2 ? { x: loop.x - loop.a, y: loop.y } : points[segment];
         const to = points[segment + 1];
         const arc = Math.sin(Math.PI * travel);
         x = mix(from.x, to.x, t) + arc * lateral;
@@ -287,7 +287,7 @@ function initializeStory(story: HTMLElement) {
       story.classList.remove('is-enhanced');
       intro?.kill();
       gsap.set(
-        [scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, autoExamples, notes.filter(Boolean), elements.dot, elements.pill,
+        [scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, notes.filter(Boolean), elements.dot, elements.pill,
           elements.underline, elements.loopSvg, elements.loopRing, cue, meter],
         { clearProps: 'all' },
       );

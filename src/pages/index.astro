@@ -38,14 +38,10 @@ import { homeSchema } from '../data/seo';
           <span class="line-mask"><span class="line-inner">Méně rutiny.</span></span>{' '}
           <span class="line-mask"><span class="line-inner">Více času<span class="dot-anchor" data-dot-auto aria-hidden="true"></span></span></span>
         </h2>
+        <div class="auto-art" aria-hidden="true"></div>
         <p class="scene-note auto-note">
           Jednotlivcům i&nbsp;firmám propojuju nástroje<br class="auto-break" /> a&nbsp;automatizuju opakovanou práci pomocí AI.
         </p>
-        <ul class="auto-examples" aria-label="Příklady automatizace">
-          <li>E-maily</li>
-          <li>Dokumenty</li>
-          <li>Data</li>
-        </ul>
       </div>
 
       <div class="scene scene-contact">
@@ -200,26 +196,17 @@ import { homeSchema } from '../data/seo';
     max-width: 44ch;
   }
 
-  .auto-examples {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin-top: 22px;
-    padding: 0;
-    list-style: none;
-    color: var(--text-3);
-    font-size: 0.75rem;
-    letter-spacing: 0.015em;
+  .auto-art { display: none; }
+
+  .is-enhanced .auto-art {
+    display: block;
+    flex: none;
+    width: clamp(128px, 15vw, 176px);
+    height: clamp(48px, 5.5vw, 64px);
+    margin-top: 28px;
   }
 
-  .auto-examples li { display: flex; align-items: center; gap: 9px; }
-  .auto-examples li::before {
-    content: '';
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--accent);
-  }
+  .is-enhanced .auto-note { margin-top: 24px; }
 
   .auto-loop { display: none; }
 
@@ -380,7 +367,7 @@ import { homeSchema } from '../data/seo';
     .contact-pill { margin-top: 36px; }
     .auto-break { display: none; }
     .auto-note { max-width: 33ch; }
-    .auto-examples { gap: 10px 18px; margin-top: 18px; }
+    .is-enhanced .auto-art { margin-top: 22px; }
     .is-enhanced .scene { padding-block: 88px 100px; }
     .is-enhanced .scroll-cue { bottom: 28px; }
   }
