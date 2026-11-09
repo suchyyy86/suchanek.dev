@@ -14,7 +14,7 @@ function initializeStory(story: HTMLElement) {
   const autoAnchor = story.querySelector<HTMLElement>('[data-dot-auto]');
   const underline = story.querySelector<SVGPathElement>('.work-underline-ink');
   const loopSvg = story.querySelector<SVGSVGElement>('.auto-loop');
-  const loopRing = story.querySelector<SVGCircleElement>('.auto-loop-ring');
+  const loopRing = story.querySelector<SVGPathElement>('.auto-loop-ring');
   const pill = story.querySelector<HTMLElement>('.contact-pill');
   const scenes = Array.from(story.querySelectorAll<HTMLElement>('.scene'));
   if (
@@ -30,6 +30,7 @@ function initializeStory(story: HTMLElement) {
   const scrollLabels = Array.from(story.querySelectorAll<HTMLElement>('[data-scroll-label]'));
   const nameChars = Array.from(story.querySelectorAll<HTMLElement>('.name-char'));
   const planeStrokes = Array.from(story.querySelectorAll<SVGPathElement>('.contact-plane path'));
+  const autoExamples = Array.from(story.querySelectorAll<HTMLElement>('.auto-examples li'));
   const footer = document.querySelector<HTMLElement>('.footer');
   const media = gsap.matchMedia();
 
@@ -43,7 +44,8 @@ function initializeStory(story: HTMLElement) {
     story.classList.add('is-enhanced');
     const state = { progress: 0 };
     let points = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
-    let loop = { x: 0, y: 0, r: 0, start: Math.PI };
+    let loop = { x: 0, y: 0, a: 0, b: 0 };
+    let loopLength = 0;
     let pillWidth = 0;
     let pillHeight = 0;
     let dotSize = 0;
@@ -89,23 +91,22 @@ function initializeStory(story: HTMLElement) {
       points[3].x -= (pillWidth - pillHeight) / 2;
       dotSize = elements.startAnchor.offsetWidth;
 
-      // The routine loop starts at the full stop after “rutinu” and rises to its upper right,
-      // clear of the note below. The anchor is 0.085em wide, which gives the heading's em size.
+      // A continuous figure-eight starts and ends at the full stop. Fit the whole
+      // stroke inside the content width, including narrow screens and larger text.
       const em = elements.autoAnchor.offsetWidth / 0.085;
-      const r = em * 0.4;
-      const tilt = Math.PI / 6;
-      loop = { x: points[2].x + r * Math.cos(tilt), y: points[2].y - r * Math.sin(tilt), r, start: Math.PI - tilt };
-      const size = Math.ceil(r * 2 + 4);
-      elements.loopSvg.setAttribute('width', String(size));
-      elements.loopSvg.setAttribute('height', String(size));
-      elements.loopSvg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-      elements.loopRing.setAttribute('cx', String(size / 2));
-      elements.loopRing.setAttribute('cy', String(size / 2));
-      elements.loopRing.setAttribute('r', String(r));
-      // A circle path starts at 3 o’clock; rotate it so the stroke begins where the dot enters.
-      const startDeg = (loop.start * 180) / Math.PI;
-      elements.loopRing.setAttribute('transform', `rotate(${startDeg} ${size / 2} ${size / 2})`);
-      gsap.set(elements.loopSvg, { x: loop.x - size / 2, y: loop.y - size / 2 });
+      const width = Math.max(12, Math.min(em * 1.65, elements.stage.offsetWidth - points[2].x - 8));
+      loop = { x: points[2].x + width / 2, y: points[2].y, a: width / 2, b: width * 0.2 };
+      const height = loop.b * 2 + 8;
+      elements.loopSvg.setAttribute('width', String(width + 8));
+      elements.loopSvg.setAttribute('height', String(height));
+      elements.loopSvg.setAttribute('viewBox', `0 0 ${width + 8} ${height}`);
+      const path = Array.from({ length: 161 }, (_, index) => {
+        const theta = index / 160 * Math.PI * 2;
+        return `${index === 0 ? 'M' : 'L'} ${4 + loop.a * (1 - Math.cos(theta))} ${height / 2 - loop.b * Math.sin(2 * theta)}`;
+      }).join(' ');
+      elements.loopRing.setAttribute('d', path);
+      loopLength = elements.loopRing.getTotalLength();
+      gsap.set(elements.loopSvg, { x: points[2].x - 4, y: loop.y - height / 2 });
       render();
     }
 
@@ -135,6 +136,10 @@ function initializeStory(story: HTMLElement) {
       setScene(1, ease(workEnter) * (1 - workExit), workEnter, workExit);
       setScene(2, ease(autoEnter) * (1 - autoExit), autoEnter, autoExit);
       setScene(3, ease(contactEnter), contactEnter, 0);
+      autoExamples.forEach((example, index) => {
+        const reveal = ease(between(p, at(0.82 + index * 0.025), at(0.89 + index * 0.025)));
+        gsap.set(example, { opacity: reveal, y: (1 - reveal) * 8 });
+      });
       gsap.set(elements.pill, { opacity: ease(between(p, at(1.31), at(1.375))), y: 0 });
       gsap.set(meter, { scaleY: p });
 
@@ -162,15 +167,14 @@ function initializeStory(story: HTMLElement) {
       elements.underline.style.strokeDashoffset = String(1 - inkProgress);
       elements.underline.style.opacity = inkProgress > 0 ? '1' : '0';
 
-      // Routine: the dot draws a circle on its first lap, runs it once more,
-      // then breaks out while the loop unwinds behind it.
+      // One calm, continuous cycle: the dot traces automation, then carries on
+      // toward contact. Geometry and dash reveal share the same path distance.
       const loopRun = between(p, at(0.84), at(1.0));
-      const laps = 2 * loopEase(loopRun);
-      const ringDrawn = clamp(laps);
+      const ringDrawn = loopEase(loopRun);
       const ringErase = ease(between(p, at(1.0), at(1.1)));
       elements.loopRing.style.strokeDasharray = '1 1';
-      elements.loopRing.style.strokeDashoffset = String(1 - ringDrawn - ringErase);
-      elements.loopRing.style.opacity = ringDrawn > 0 && ringErase < 1 ? '1' : '0';
+      elements.loopRing.style.strokeDashoffset = String(1 - ringDrawn);
+      elements.loopRing.style.opacity = ringDrawn > 0 ? String(1 - ringErase) : '0';
 
       // Trace the plane first, then add three short motion strokes.
       const planeProgress = between(p, at(1.235), at(1.375));
@@ -203,9 +207,9 @@ function initializeStory(story: HTMLElement) {
       let rotation = 0;
       let landing = 0;
       if (p >= at(0.84) && p < at(1.0)) {
-        const theta = loop.start + laps * Math.PI * 2;
-        x = loop.x + loop.r * Math.cos(theta);
-        y = loop.y + loop.r * Math.sin(theta);
+        const tip = elements.loopRing.getPointAtLength(loopLength * ringDrawn);
+        x = points[2].x - 4 + tip.x;
+        y = loop.y - (loop.b + 4) + tip.y;
       } else {
         const segment = p < at(0.58) ? 0 : p < at(1.0) ? 1 : 2;
         const [start, end] = flights[segment];
@@ -283,7 +287,7 @@ function initializeStory(story: HTMLElement) {
       story.classList.remove('is-enhanced');
       intro?.kill();
       gsap.set(
-        [scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, notes.filter(Boolean), elements.dot, elements.pill,
+        [scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, autoExamples, notes.filter(Boolean), elements.dot, elements.pill,
           elements.underline, elements.loopSvg, elements.loopRing, cue, meter],
         { clearProps: 'all' },
       );
