@@ -39,6 +39,21 @@ function initializeStory(story: HTMLElement) {
   // scale and `at()` maps it back to scroll progress.
   const TOTAL = 1.4;
   const at = (value: number) => value / TOTAL;
+  const READING_STOPS = [0.12, 0.56, 0.985, 1.385];
+  const READING_HOLD = 0.1;
+
+  // Add a short stretch of scroll with a completely still, readable scene.
+  // The mapping is reversible and never intercepts wheel or touch input.
+  function storyProgress(progress: number) {
+    const elapsed = progress * (TOTAL + READING_STOPS.length * READING_HOLD);
+    let held = 0;
+    for (const stop of READING_STOPS) {
+      if (elapsed < stop + held) break;
+      if (elapsed <= stop + held + READING_HOLD) return at(stop);
+      held += READING_HOLD;
+    }
+    return at(elapsed - held);
+  }
 
   media.add('(prefers-reduced-motion: no-preference) and (min-height: 520px)', () => {
     story.classList.add('is-enhanced');
@@ -120,7 +135,7 @@ function initializeStory(story: HTMLElement) {
     }
 
     function render() {
-      const p = state.progress;
+      const p = storyProgress(state.progress);
       // Finish the entrance if someone scrolls immediately, keeping the story responsive.
       if (p > at(0.025) && intro) {
         intro.progress(1).kill();
@@ -137,7 +152,7 @@ function initializeStory(story: HTMLElement) {
       setScene(2, ease(autoEnter) * (1 - autoExit), autoEnter, autoExit);
       setScene(3, ease(contactEnter), contactEnter, 0);
       gsap.set(elements.pill, { opacity: ease(between(p, at(1.31), at(1.375))), y: 0 });
-      gsap.set(meter, { scaleY: p });
+      gsap.set(meter, { scaleY: state.progress });
 
       // Scrub the flip in both directions; no queued transitions on fast scrolling.
       const labelPhase = [
@@ -165,7 +180,7 @@ function initializeStory(story: HTMLElement) {
 
       // One calm, continuous cycle: the dot traces automation, then carries on
       // toward contact. Geometry and dash reveal share the same path distance.
-      const loopRun = between(p, at(0.865), at(1.0));
+      const loopRun = between(p, at(0.865), at(0.98));
       const ringDrawn = loopEase(loopRun);
       const ringErase = ease(between(p, at(1.0), at(1.1)));
       elements.loopRing.style.strokeDasharray = '1 1';
