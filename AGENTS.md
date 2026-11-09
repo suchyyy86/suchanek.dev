@@ -40,8 +40,7 @@ hotové, ale schované: Astro nesestavuje složky začínající podtržítkem. 
   - `.scroll-in` – nástup při scrollu (čisté CSS, scroll-driven animations).
   - Vstupní animace mají `fill-mode: backwards`, ať po doběhnutí fungují hover styly.
   - Vše respektuje `prefers-reduced-motion`.
-- **Přechody stránek** řeší Astro `ClientRouter`. Skripty, které mají běžet na každé stránce,
-  pověs na `document.addEventListener('astro:page-load', …)`.
+- **Skripty** jsou v `src/scripts/`: `site.ts` pro celý web, `home.ts` pro scrollovací scény úvodu (GSAP).
 - **Česká typografie:** texty z dat prožeň přes `cz()` z `src/utils/cz.ts` (pevné mezery za předložkami),
   v šablonách piš `a&nbsp;`, `v&nbsp;`…
 - **Pozor na mezery v šablonách:** Astro zahodí mezeru na začátku řádku hned za uzavíracím tagem
@@ -49,6 +48,22 @@ hotové, ale schované: Astro nesestavuje složky začínající podtržítkem. 
 - Mapa se generuje při buildu (`src/lib/world.ts`, d3-geo + world-atlas 50m zjednodušená). Do prohlížeče
   nejde žádná mapová knihovna. U navštívených zemí se zámořská území (Francouzská Guyana, Réunion…)
   nebarví – `splitOverseas()`. Ostatní země se barví celé tak, jak jsou v datech.
+
+## SEO
+
+- **URL bez koncového lomítka**: `/cv`, ne `/cv/` ani `/cv.html` (`trailingSlash: 'never'` + `build.format: 'file'`
+  v `astro.config.mjs`, `cleanUrls` + `trailingSlash: false` ve `vercel.json` ostatní varianty přesměruje 308).
+  Interní odkazy piš bez lomítka. Canonical a `og:url` počítá `src/layouts/Base.astro`.
+- **Titulek do ~60 znaků** (`title` → „{title} · Mariusz Suchanek“, nebo celý přes `seoTitle`),
+  **popis do ~155 znaků** (`description`). Každá stránka má právě jeden H1, na každé stránce jiný.
+- **Strukturovaná data** (Person, WebSite, ProfilePage) skládá `src/data/seo.ts` z `cv.ts` a `site.ts`,
+  stránka je předá do `Base` přes `schema`. Stránka 404 má `noindex`.
+- **Náhledový obrázek a ikony** (`public/og.png`, `favicon.ico`, `apple-touch-icon.png`) se generují:
+  `bash scripts/generate-assets.sh` (zdroje v `scripts/assets/`). Po změně jména nebo role přegeneruj.
+- **Sitemapu** generuje `@astrojs/sitemap` při buildu, `public/robots.txt` na ni odkazuje.
+- **Písma jen z vlastního webu** přes `@fontsource` – žádné Google Fonts (GDPR, blokují vykreslení).
+- **Bezpečnostní hlavičky** včetně Content-Security-Policy jsou ve `vercel.json`. Cokoli z cizí domény
+  (písmo, skript, analytika, iframe) je potřeba do CSP přidat, jinak to prohlížeč zablokuje.
 
 ## Dokumentace
 

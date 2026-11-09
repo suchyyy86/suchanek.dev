@@ -1,14 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
 import CopyEmail from '../components/CopyEmail.astro';
+import { homeSchema } from '../data/seo';
 ---
 
-<Base wide>
+<Base wide schema={homeSchema}>
   <section class="story" aria-label="O mně">
     <div class="story-stage">
       <div class="scene scene-name">
         <h1 class="display name" aria-label="Mariusz Suchanek">
-          <span class="line-mask" aria-hidden="true"><span class="line-inner">{Array.from('Mariusz').map((letter) => <span class="name-char">{letter}</span>)}</span></span>
+          <span class="line-mask" aria-hidden="true"><span class="line-inner">{Array.from('Mariusz').map((letter) => <span class="name-char">{letter}</span>)}</span></span>{' '}
           <span class="line-mask" aria-hidden="true"><span class="line-inner">{Array.from('Suchanek').map((letter) => <span class="name-char">{letter}</span>)}<span class="dot-anchor" data-dot-start></span></span></span>
         </h1>
         <p class="scene-note name-note">Vývojář a&nbsp;juniorní projektový manažer<br />v&nbsp;Railsformers.</p>
@@ -16,7 +17,7 @@ import CopyEmail from '../components/CopyEmail.astro';
 
       <div class="scene scene-work">
         <h2 class="display work-title">
-          <span class="line-mask"><span class="line-inner">Stavím weby</span></span>
+          <span class="line-mask"><span class="line-inner">Stavím weby</span></span>{' '}
           <span class="line-mask"><span class="line-inner">a&nbsp;aplikace<span class="dot-anchor" data-dot-work aria-hidden="true"></span></span></span>
         </h2>
         <p class="work-note">
@@ -48,13 +49,14 @@ import CopyEmail from '../components/CopyEmail.astro';
       </div>
 
       <div class="travel-dot" aria-hidden="true"></div>
-      <a class="scroll-cue" href="#kontakt" aria-label="Přejít ke kontaktu">
+      <a class="scroll-cue" href="#kontakt">
         <span class="cue-track" aria-hidden="true"><span></span></span>
         <span class="cue-label" aria-hidden="true">
-          <span data-scroll-label>Zvědavý?</span>
-          <span data-scroll-label>Zvědavost tě posune dál.</span>
+          <span data-scroll-label>Zvědavý?</span>{' '}
+          <span data-scroll-label>Zvědavost tě posune dál.</span>{' '}
           <span data-scroll-label>Kontakt</span>
-        </span>
+        </span>{' '}
+        <span class="sr-only">Přejít ke kontaktu</span>
       </a>
     </div>
     <div id="kontakt" class="contact-destination" aria-hidden="true"></div>

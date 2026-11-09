@@ -1,24 +1,45 @@
 ---
+import '@fontsource-variable/instrument-sans';
 import '@fontsource-variable/geist-mono';
 import '@fontsource/instrument-serif/400-italic.css';
 import '../styles/global.css';
+import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import sansLatinExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
 import { site } from '../data/site';
+import { defaultTitle, ogImage, SITE_URL } from '../data/seo';
 
 interface Props {
   title?: string;
+  /** Celý titulek stránky, když nestačí „{title} · Mariusz Suchanek“. */
+  seoTitle?: string;
   description?: string;
   wide?: boolean;
+  ogType?: 'website' | 'profile';
+  /** schema.org JSON-LD pro tuhle stránku */
+  schema?: Record<string, unknown>;
+  /** Stránka se nemá indexovat (404) – bez canonicalu, s meta robots noindex. */
+  noindex?: boolean;
 }
 
 const {
   title,
+  seoTitle,
   description = `${site.name} – ${site.role.toLowerCase()}. AI-first vývoj, weby a automatizace.`,
   wide = false,
+  ogType = 'website',
+  schema,
+  noindex = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} · ${site.name}` : `${site.name} – vývojář`;
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const fullTitle = seoTitle ?? (title ? `${title} · ${site.name}` : defaultTitle);
+// Jedna adresa na stránku: bez koncového lomítka a bez .html; úvod (při buildu „/index“) je „/“.
+const pathname = Astro.url.pathname
+  .replace(/\.html$/, '')
+  .replace(/\/index$/, '/')
+  .replace(/(.)\/$/, '$1');
+const path = pathname || '/';
+const canonical = new URL(path, SITE_URL).href;
+const ogImageUrl = new URL(ogImage.path, SITE_URL).href;
 
 // Projekty jsou zatím skryté (src/pages/_projekty). Až se vrátí, přidej sem { href: '/projekty', label: 'Projekty' }.
 const nav = [
@@ -33,23 +54,44 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 <html lang="cs">
   <head>
     <meta charset="utf-8" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="canonical" href={canonical} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <meta name="author" content={site.name} />
+
+    <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansLatinExt} as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:site_name" content="suchanek.dev" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="cs_CZ" />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(ogImage.width)} />
+    <meta property="og:image:height" content={String(ogImage.height)} />
+    <meta property="og:image:alt" content={ogImage.alt} />
+    {
+      ogType === 'profile' && (
+        <>
+          <meta property="profile:first_name" content="Mariusz" />
+          <meta property="profile:last_name" content="Suchanek" />
+        </>
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+
     <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-    <meta name="generator" content={Astro.generator} />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
   </head>
   <body>
     <div class="ambient" aria-hidden="true">

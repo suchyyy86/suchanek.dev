@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://suchanek.dev/sitemap-index.xml

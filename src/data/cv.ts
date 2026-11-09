@@ -9,6 +9,10 @@ export const headline = ['Vývojář webových aplikací', 'Juniorní projektov�
 export const profile =
   'Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji technický vývoj, AI nástroje a komunikaci s klienty. Studuji ekonomii na VŠB–TUO.';
 
+// Popis pro vyhledávače: první dvě věty profilu (Google popisy delší než ~155 znaků ořízne).
+export const metaDescription =
+  'Vývojář s praxí na komplexní 3D aplikaci, WordPress webech a vedení menších projektů. Propojuji technický vývoj, AI nástroje a komunikaci s klienty.';
+
 export const experience = [
   {
     company: 'Railsformers',

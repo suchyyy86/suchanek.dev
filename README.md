@@ -18,6 +18,11 @@ npm run build    # statický výstup do dist/
 | CV (doslova podle PDF) | `src/data/cv.ts` |
 | Projekty – zatím skryté, stránky v `src/pages/_projekty/` | `src/data/projects.ts` |
 | Mapa cest – navštívené země a místa (zatím skrytá) | `src/data/travels.json` |
+| SEO – výchozí titulek, náhledový obrázek, strukturovaná data | `src/data/seo.ts` |
+| Přesměrování a bezpečnostní hlavičky | `vercel.json` |
+
+Náhledový obrázek pro sdílení a ikony se generují příkazem `bash scripts/generate-assets.sh`
+(potřebuje Google Chrome).
 
 ### Mapa cest
 

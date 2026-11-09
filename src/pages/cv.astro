@@ -4,6 +4,7 @@ import {
   name,
   headline,
   profile,
+  metaDescription,
   experience,
   education,
   contact,
@@ -12,12 +13,18 @@ import {
   certificates,
 } from '../data/cv';
 import { site } from '../data/site';
+import { cvSchema } from '../data/seo';
 import { cz } from '../utils/cz';
 ---
 
-<Base title="CV" description={profile}>
+<Base
+  seoTitle="CV – Mariusz Suchanek, vývojář webových aplikací"
+  description={metaDescription}
+  ogType="profile"
+  schema={cvSchema}
+>
   <header class="page-head">
-    <h1 class="page-title enter">{name}</h1>
+    <h1 class="page-title enter">{name}<span class="sr-only"> – CV</span></h1>
     <p class="headline enter" style="--i: 1">
       {headline[0]} <span class="sep">|</span> {headline[1]}
     </p>
