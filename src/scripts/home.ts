@@ -11,14 +11,20 @@ function initializeStory(story: HTMLElement) {
   const dot = story.querySelector<HTMLElement>('.travel-dot');
   const startAnchor = story.querySelector<HTMLElement>('[data-dot-start]');
   const workAnchor = story.querySelector<HTMLElement>('[data-dot-work]');
+  const autoAnchor = story.querySelector<HTMLElement>('[data-dot-auto]');
   const underline = story.querySelector<SVGPathElement>('.work-underline-ink');
+  const loopSvg = story.querySelector<SVGSVGElement>('.auto-loop');
+  const loopRing = story.querySelector<SVGCircleElement>('.auto-loop-ring');
   const pill = story.querySelector<HTMLElement>('.contact-pill');
   const scenes = Array.from(story.querySelectorAll<HTMLElement>('.scene'));
-  if (!stage || !dot || !startAnchor || !workAnchor || !pill || !underline || scenes.length !== 3) return;
+  if (
+    !stage || !dot || !startAnchor || !workAnchor || !autoAnchor || !pill || !underline ||
+    !loopSvg || !loopRing || scenes.length !== 4
+  ) return;
 
-  const elements = { stage, dot, startAnchor, workAnchor, pill, underline };
+  const elements = { stage, dot, startAnchor, workAnchor, autoAnchor, pill, underline, loopSvg, loopRing };
   const lines = scenes.map((scene) => Array.from(scene.querySelectorAll<HTMLElement>('.line-inner')));
-  const notes = [story.querySelector('.name-note'), story.querySelector('.work-note')];
+  const notes = [story.querySelector('.name-note'), story.querySelector('.work-note'), story.querySelector('.auto-note')];
   const cue = story.querySelector('.scroll-cue');
   const meter = story.querySelector('.cue-track > span');
   const scrollLabels = Array.from(story.querySelectorAll<HTMLElement>('[data-scroll-label]'));
@@ -27,10 +33,17 @@ function initializeStory(story: HTMLElement) {
   const footer = document.querySelector<HTMLElement>('.footer');
   const media = gsap.matchMedia();
 
+  // The original three scenes were choreographed on a 0–1 scale. The automation scene
+  // adds 0.4 between “AI-first.” and “Napiš mi.”, so every time below uses that longer
+  // scale and `at()` maps it back to scroll progress.
+  const TOTAL = 1.4;
+  const at = (value: number) => value / TOTAL;
+
   media.add('(prefers-reduced-motion: no-preference) and (min-height: 520px)', () => {
     story.classList.add('is-enhanced');
     const state = { progress: 0 };
-    let points = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
+    let points = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
+    let loop = { x: 0, y: 0, r: 0, start: Math.PI };
     let pillWidth = 0;
     let pillHeight = 0;
     let dotSize = 0;
@@ -41,6 +54,7 @@ function initializeStory(story: HTMLElement) {
     const clamp = gsap.utils.clamp(0, 1);
     const between = (value: number, start: number, end: number) => clamp((value - start) / (end - start));
     const ease = gsap.parseEase('power2.inOut');
+    const loopEase = gsap.parseEase('sine.inOut');
     const mix = gsap.utils.interpolate;
 
     function measure() {
@@ -59,7 +73,12 @@ function initializeStory(story: HTMLElement) {
         }
         return { x, y };
       }
-      points = [center(elements.startAnchor), center(elements.workAnchor), center(elements.pill)];
+      points = [
+        center(elements.startAnchor),
+        center(elements.workAnchor),
+        center(elements.autoAnchor),
+        center(elements.pill),
+      ];
       const tokens = getComputedStyle(document.documentElement);
       const accent = tokens.getPropertyValue('--accent').trim();
       colors = {
@@ -67,8 +86,26 @@ function initializeStory(story: HTMLElement) {
       };
       pillWidth = elements.pill.offsetWidth;
       pillHeight = elements.pill.offsetHeight;
-      points[2].x -= (pillWidth - pillHeight) / 2;
+      points[3].x -= (pillWidth - pillHeight) / 2;
       dotSize = elements.startAnchor.offsetWidth;
+
+      // The routine loop starts at the full stop after “rutinu” and rises to its upper right,
+      // clear of the note below. The anchor is 0.085em wide, which gives the heading's em size.
+      const em = elements.autoAnchor.offsetWidth / 0.085;
+      const r = em * 0.4;
+      const tilt = Math.PI / 6;
+      loop = { x: points[2].x + r * Math.cos(tilt), y: points[2].y - r * Math.sin(tilt), r, start: Math.PI - tilt };
+      const size = Math.ceil(r * 2 + 4);
+      elements.loopSvg.setAttribute('width', String(size));
+      elements.loopSvg.setAttribute('height', String(size));
+      elements.loopSvg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+      elements.loopRing.setAttribute('cx', String(size / 2));
+      elements.loopRing.setAttribute('cy', String(size / 2));
+      elements.loopRing.setAttribute('r', String(r));
+      // A circle path starts at 3 o’clock; rotate it so the stroke begins where the dot enters.
+      const startDeg = (loop.start * 180) / Math.PI;
+      elements.loopRing.setAttribute('transform', `rotate(${startDeg} ${size / 2} ${size / 2})`);
+      gsap.set(elements.loopSvg, { x: loop.x - size / 2, y: loop.y - size / 2 });
       render();
     }
 
@@ -84,22 +121,29 @@ function initializeStory(story: HTMLElement) {
     function render() {
       const p = state.progress;
       // Finish the entrance if someone scrolls immediately, keeping the story responsive.
-      if (p > 0.025 && intro) {
+      if (p > at(0.025) && intro) {
         intro.progress(1).kill();
         intro = undefined;
       }
-      const introExit = ease(between(p, 0.16, 0.29));
-      const workEnter = between(p, 0.28, 0.42);
-      const workExit = ease(between(p, 0.57, 0.69));
-      const contactEnter = between(p, 0.7, 0.83);
+      const introExit = ease(between(p, at(0.16), at(0.29)));
+      const workEnter = between(p, at(0.28), at(0.42));
+      const workExit = ease(between(p, at(0.57), at(0.69)));
+      const autoEnter = between(p, at(0.7), at(0.84));
+      const autoExit = ease(between(p, at(0.99), at(1.11)));
+      const contactEnter = between(p, at(1.1), at(1.23));
       setScene(0, 1 - introExit, 1, introExit);
       setScene(1, ease(workEnter) * (1 - workExit), workEnter, workExit);
-      setScene(2, ease(contactEnter), contactEnter, 0);
-      gsap.set(elements.pill, { opacity: ease(between(p, 0.91, 0.975)), y: 0 });
+      setScene(2, ease(autoEnter) * (1 - autoExit), autoEnter, autoExit);
+      setScene(3, ease(contactEnter), contactEnter, 0);
+      gsap.set(elements.pill, { opacity: ease(between(p, at(1.31), at(1.375))), y: 0 });
       gsap.set(meter, { scaleY: p });
 
       // Scrub the flip in both directions; no queued transitions on fast scrolling.
-      const labelPhase = p < 0.5 ? ease(between(p, 0.25, 0.31)) : 1 + ease(between(p, 0.67, 0.73));
+      const labelPhase = [
+        [0.25, 0.31],
+        [0.67, 0.73],
+        [1.07, 1.13],
+      ].reduce((phase, [start, end]) => phase + ease(between(p, at(start), at(end))), 0);
       scrollLabels.forEach((label, index) => {
         const offset = clamp(Math.abs(index - labelPhase));
         const direction = Math.sign(index - labelPhase);
@@ -111,15 +155,25 @@ function initializeStory(story: HTMLElement) {
       });
 
       // The dot rests after “aplikace” while a separate pen stroke is drawn.
-      const inkProgress = gsap.parseEase('power2.out')(between(p, 0.43, 0.55));
+      const inkProgress = gsap.parseEase('power2.out')(between(p, at(0.43), at(0.55)));
       // Draw a scaling mask: normalized dashes on a non-scaling stroke can repeat
       // after the responsive SVG transform and reveal disconnected fragments.
       elements.underline.style.strokeDasharray = '1 1';
       elements.underline.style.strokeDashoffset = String(1 - inkProgress);
       elements.underline.style.opacity = inkProgress > 0 ? '1' : '0';
 
+      // Routine: the dot draws a circle on its first lap, runs it once more,
+      // then breaks out while the loop unwinds behind it.
+      const loopRun = between(p, at(0.84), at(1.0));
+      const laps = 2 * loopEase(loopRun);
+      const ringDrawn = clamp(laps);
+      const ringErase = ease(between(p, at(1.0), at(1.1)));
+      elements.loopRing.style.strokeDasharray = '1 1';
+      elements.loopRing.style.strokeDashoffset = String(1 - ringDrawn - ringErase);
+      elements.loopRing.style.opacity = ringDrawn > 0 && ringErase < 1 ? '1' : '0';
+
       // Trace the plane first, then add three short motion strokes.
-      const planeProgress = between(p, 0.835, 0.975);
+      const planeProgress = between(p, at(1.235), at(1.375));
       planeStrokes.forEach((stroke, index) => {
         const drawn = index === 0
           ? between(planeProgress, 0, 0.8)
@@ -129,7 +183,7 @@ function initializeStory(story: HTMLElement) {
         stroke.style.opacity = drawn > 0 ? '1' : '0';
       });
 
-      const currentScene = p < 0.28 ? 0 : p < 0.7 ? 1 : 2;
+      const currentScene = p < at(0.28) ? 0 : p < at(0.7) ? 1 : p < at(1.1) ? 2 : 3;
       if (currentScene !== activeScene) {
         scenes.forEach((scene, index) => {
           if (index > 0) scene.setAttribute('aria-hidden', String(index !== currentScene));
@@ -137,21 +191,37 @@ function initializeStory(story: HTMLElement) {
         });
         activeScene = currentScene;
       }
-      elements.pill.inert = p < 0.975;
+      elements.pill.inert = p < at(1.375);
 
-      // The same dot travels along two arcs, settles, then becomes the contact surface.
-      const segment = p < 0.58 ? 0 : 1;
-      const travel = segment === 0 ? between(p, 0.15, 0.4) : between(p, 0.58, 0.81);
-      const t = ease(travel);
-      const from = points[segment];
-      const to = points[segment + 1];
-      const arc = Math.sin(Math.PI * travel);
+      // The same dot hops from the name to “aplikace”, then to “rutinu”, loops there,
+      // and finally flies to the contact surface it turns into.
       const lateral = Math.min(elements.stage.offsetWidth * 0.17, 155);
-      const x = mix(from.x, to.x, t) + arc * lateral;
-      const y = mix(from.y, to.y, t) - arc * Math.min(elements.stage.offsetHeight * 0.15, 110);
-      const spread = ease(between(p, 0.855, 0.94));
-      const grow = ease(between(p, 0.81, 0.87));
-      const landing = Math.sin(between(travel, 0.8, 1) * Math.PI) * (1 - spread);
+      const lift = Math.min(elements.stage.offsetHeight * 0.15, 110);
+      const flights: [number, number][] = [[0.15, 0.4], [0.58, 0.81], [1.0, 1.23]];
+      let x: number;
+      let y: number;
+      let rotation = 0;
+      let landing = 0;
+      if (p >= at(0.84) && p < at(1.0)) {
+        const theta = loop.start + laps * Math.PI * 2;
+        x = loop.x + loop.r * Math.cos(theta);
+        y = loop.y + loop.r * Math.sin(theta);
+      } else {
+        const segment = p < at(0.58) ? 0 : p < at(1.0) ? 1 : 2;
+        const [start, end] = flights[segment];
+        const travel = between(p, at(start), at(end));
+        const t = ease(travel);
+        const from = points[segment];
+        const to = points[segment + 1];
+        const arc = Math.sin(Math.PI * travel);
+        x = mix(from.x, to.x, t) + arc * lateral;
+        y = mix(from.y, to.y, t) - arc * lift;
+        rotation = arc * (segment === 0 ? 12 : -12);
+        landing = Math.sin(between(travel, 0.8, 1) * Math.PI);
+      }
+      const spread = ease(between(p, at(1.255), at(1.34)));
+      const grow = ease(between(p, at(1.21), at(1.27)));
+      landing *= 1 - spread;
       const height = mix(dotSize, pillHeight, grow);
       const width = mix(height, pillWidth, spread);
       gsap.set(elements.dot, {
@@ -164,7 +234,7 @@ function initializeStory(story: HTMLElement) {
         borderColor: mix('rgba(0, 0, 0, 0)', colors.accent, spread),
         scaleX: 1 + landing * 0.2,
         scaleY: 1 - landing * 0.16,
-        rotation: arc * (segment === 0 ? 12 : -12) * (1 - spread),
+        rotation: rotation * (1 - spread),
       });
     }
 
@@ -212,7 +282,11 @@ function initializeStory(story: HTMLElement) {
       if (footer) gsap.set(footer, { clearProps: 'marginTop' });
       story.classList.remove('is-enhanced');
       intro?.kill();
-      gsap.set([scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, notes.filter(Boolean), elements.dot, elements.pill, elements.underline, cue, meter], { clearProps: 'all' });
+      gsap.set(
+        [scenes, lines.flat(), nameChars, scrollLabels, planeStrokes, notes.filter(Boolean), elements.dot, elements.pill,
+          elements.underline, elements.loopSvg, elements.loopRing, cue, meter],
+        { clearProps: 'all' },
+      );
       scenes.forEach((scene) => {
         scene.inert = false;
         scene.removeAttribute('aria-hidden');
